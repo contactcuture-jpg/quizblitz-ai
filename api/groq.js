@@ -1,22 +1,19 @@
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 export default async function handler(req, res) {
-  // On accepte seulement les requêtes POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
     const { theme, language } = req.body;
-
-    // Numéro aléatoire pour forcer l'IA à changer de question à chaque fois
     const randomSeed = Math.floor(Math.random() * 1000000);
 
-    // L'instruction (Prompt)
     const prompt = `Tu es un générateur de quiz pour un jeu mobile. 
     Génère UNE SEULE question de niveau moyen en ${language} sur le thème : ${theme}.
     La question doit être culturellement pertinente pour la région ${language}.
-    Identifiant de génération: ${randomSeed} (Utilise-le pour générer une question unique et différente des précédentes).
+    Sois très créatif et original. Évite les questions trop évidentes ou classiques. 
+    Identifiant de génération: ${randomSeed}.
     Tu dois répondre STRICTEMENT au format JSON, sans aucun texte avant ou après:
     {
       "question": "Texte de la question ici ?",
@@ -32,16 +29,15 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "groq/compound",
+        model: "groq/compound-mini", // Modèle plus léger pour éviter le Rate Limit
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.9, // Température plus haute pour plus de créativité
-        max_tokens: 500 // Augmenté pour éviter que le JSON soit coupé
+        temperature: 1.0, // Température maximale pour forcer l'originalité
+        max_tokens: 300
       })
     });
 
     const data = await response.json();
     
-    // Si Groq renvoie une erreur, on l'affiche clairement
     if (!response.ok) {
       console.error('Erreur renvoyée par Groq :', data);
       return res.status(500).json({ error: `Erreur Groq: ${data.error?.message || JSON.stringify(data)}` });
@@ -59,7 +55,6 @@ export default async function handler(req, res) {
 
     const quizData = JSON.parse(rawContent.trim());
 
-    // On renvoie les données au frontend
     res.status(200).json(quizData);
 
   } catch (error) {
