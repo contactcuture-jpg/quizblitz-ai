@@ -31,11 +31,8 @@ export default async function handler(req, res) {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 1.0,
-          maxOutputTokens: 8000, // Limite très large
-          responseMimeType: "application/json",
-          thinkingConfig: {
-            thinkingBudget: 0 // DÉSACTIVER LA RÉFLEXION pour aller super vite et économiser les tokens
-          }
+          maxOutputTokens: 8192, // Espace maximal autorisé
+          responseMimeType: "application/json"
         }
       })
     });
@@ -49,7 +46,6 @@ export default async function handler(req, res) {
 
     let rawContent = data.candidates[0].content.parts[0].text;
 
-    // Nettoyage intelligent pour extraire uniquement le JSON
     const startIndex = rawContent.indexOf('{');
     const endIndex = rawContent.lastIndexOf('}');
     
