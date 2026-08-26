@@ -22,7 +22,6 @@ export default async function handler(req, res) {
     }
     (Note: "correct_index" est l'index de la bonne réponse, de 0 à 3).`;
 
-    // Appel à l'API de Google Gemini
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
@@ -32,8 +31,11 @@ export default async function handler(req, res) {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 1.0,
-          maxOutputTokens: 1000, // Augmenté à 1000 car le modèle "think" avant de répondre
-          responseMimeType: "application/json" // Gemini a une fonction native pour forcer le JSON !
+          maxOutputTokens: 8000, // Limite très large
+          responseMimeType: "application/json",
+          thinkingConfig: {
+            thinkingBudget: 0 // DÉSACTIVER LA RÉFLEXION pour aller super vite et économiser les tokens
+          }
         }
       })
     });
@@ -45,7 +47,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: `Erreur Gemini: ${data.error?.message || JSON.stringify(data)}` });
     }
 
-    // Extraction du texte depuis la structure de Gemini
     let rawContent = data.candidates[0].content.parts[0].text;
 
     // Nettoyage intelligent pour extraire uniquement le JSON
@@ -58,15 +59,12 @@ export default async function handler(req, res) {
 
     let quizData;
     try {
-      // On essaie de lire le JSON
       quizData = JSON.parse(rawContent.trim());
     } catch (parseError) {
-      // Si le JSON est toujours cassé, on renvoie le texte exact pour voir ce qui cloche
       console.error('Erreur de parsing JSON:', parseError);
       return res.status(500).json({ error: `Erreur de format JSON. Texte reçu: ${rawContent}` });
     }
 
-    // On renvoie les données au frontend
     res.status(200).json(quizData);
 
   } catch (error) {
