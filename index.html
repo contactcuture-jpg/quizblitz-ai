@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>QuizBlitz AI ⚡</title>
-    <!-- LIENS POUR L'APPLICATION MOBILE (PWA) -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
     
@@ -109,7 +108,6 @@
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 242, 255, 0.5); }
         button:active { transform: translateY(1px); }
 
-        /* RÈGLES & GAINS */
         .rules-box {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid #334155;
@@ -279,57 +277,29 @@
     </div>
 
     <script>
-        // CHANGEMENT ICI : On pointe vers la nouvelle API Gemini
-        const API_URL = '/api/gemini'; 
+        const API_URL = '/api/gemini';
         let currentScore = 0;
         let currentQuestionNum = 1;
-        const totalQuestions = 30;
+        let quizQuestions = []; // Tableau qui contiendra nos 30 questions
         let timerInterval;
         let timeLeft = 15;
-        let questionStartTime;
-        const MIN_TIME_PER_QUESTION = 5;
 
         const homeScreen = document.getElementById('home-screen');
         const rulesScreen = document.getElementById('rules-screen');
         const gameScreen = document.getElementById('game-screen');
         const endScreen = document.getElementById('end-screen');
 
-        // Bouton Accueil -> Règles
         document.getElementById('start-btn').addEventListener('click', () => {
             homeScreen.classList.remove('active');
             rulesScreen.classList.add('active');
         });
 
-        // Bouton Règles -> Jeu
-        document.getElementById('start-quiz-btn').addEventListener('click', startQuiz);
-        
-        document.getElementById('exit-btn').addEventListener('click', () => {
-            clearInterval(timerInterval);
-            currentScore = 0;
-            currentQuestionNum = 1;
-            gameScreen.classList.remove('active');
-            homeScreen.classList.add('active');
-        });
-
-        document.getElementById('restart-btn').addEventListener('click', () => {
-            currentScore = 0;
-            currentQuestionNum = 1;
-            endScreen.classList.remove('active');
-            homeScreen.classList.add('active');
-        });
-
-        async function startQuiz() {
+        document.getElementById('start-quiz-btn').addEventListener('click', async () => {
             rulesScreen.classList.remove('active');
             gameScreen.classList.add('active');
-            currentScore = 0;
-            currentQuestionNum = 1;
-            document.getElementById('score').innerText = currentScore;
-            await loadQuestion();
-        }
-
-        async function loadQuestion() {
-            document.getElementById('question-num').innerText = currentQuestionNum;
-            document.getElementById('question-text').innerText = "L'IA prépare une question...";
+            
+            document.getElementById('question-num').innerText = "1";
+            document.getElementById('question-text').innerText = "L'IA prépare vos 30 questions, patientez...";
             document.getElementById('question-text').classList.add('loading-spinner');
             document.getElementById('options-container').innerHTML = '';
 
@@ -344,28 +314,55 @@
                 });
 
                 if (!response.ok) throw new Error('Erreur API');
-                const data = await response.json();
+                quizQuestions = await response.json(); // On stocke les 30 questions
                 
-                document.getElementById('question-text').classList.remove('loading-spinner');
-                document.getElementById('question-text').innerText = data.question;
-
-                const optionsContainer = document.getElementById('options-container');
-                data.options.forEach((option, index) => {
-                    const btn = document.createElement('button');
-                    btn.innerText = option;
-                    btn.classList.add('option-btn');
-                    btn.addEventListener('click', () => selectAnswer(index, data.correct_index, btn));
-                    optionsContainer.appendChild(btn);
-                });
-
-                startTimer();
+                currentScore = 0;
+                document.getElementById('score').innerText = currentScore;
+                currentQuestionNum = 1;
+                
+                displayQuestion();
             } catch (error) {
                 document.getElementById('question-text').innerText = "Erreur de connexion. Réessaie.";
             }
+        });
+        
+        document.getElementById('exit-btn').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            currentScore = 0;
+            currentQuestionNum = 1;
+            quizQuestions = [];
+            gameScreen.classList.remove('active');
+            homeScreen.classList.add('active');
+        });
+
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            currentScore = 0;
+            currentQuestionNum = 1;
+            quizQuestions = [];
+            endScreen.classList.remove('active');
+            homeScreen.classList.add('active');
+        });
+
+        function displayQuestion() {
+            const q = quizQuestions[currentQuestionNum - 1];
+            document.getElementById('question-num').innerText = currentQuestionNum;
+            document.getElementById('question-text').classList.remove('loading-spinner');
+            document.getElementById('question-text').innerText = q.question;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            q.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.innerText = option;
+                btn.classList.add('option-btn');
+                btn.addEventListener('click', () => selectAnswer(index, q.correct_index, btn));
+                optionsContainer.appendChild(btn);
+            });
+
+            startTimer();
         }
 
         function startTimer() {
-            questionStartTime = Date.now();
             timeLeft = 15;
             const timerProgress = document.getElementById('timer-progress');
             timerProgress.style.transition = 'none';
@@ -408,21 +405,14 @@
                 buttons[correctIndex].classList.add('correct');
             }
 
-            const elapsedTime = (Date.now() - questionStartTime) / 1000;
-            let waitTime = 1500;
-
-            if (elapsedTime < MIN_TIME_PER_QUESTION) {
-                waitTime = (MIN_TIME_PER_QUESTION - elapsedTime) * 1000;
-            }
-
             setTimeout(() => {
                 currentQuestionNum++;
-                if (currentQuestionNum <= totalQuestions) {
-                    loadQuestion();
+                if (currentQuestionNum <= quizQuestions.length) {
+                    displayQuestion();
                 } else {
                     endQuiz();
                 }
-            }, waitTime);
+            }, 1500); // Plus besoin d'attendre 6 secondes, les questions sont déjà prêtes !
         }
 
         function endQuiz() {
