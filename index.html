@@ -110,12 +110,31 @@
         .game-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
             font-weight: 800;
             font-size: 18px;
         }
 
+        .header-info { display: flex; gap: 20px; }
+
         .game-header span span { color: var(--primary-color); }
+
+        /* Bouton Quitter */
+        .exit-btn {
+            width: auto;
+            margin: 0;
+            padding: 8px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            background: rgba(255, 0, 85, 0.1);
+            color: var(--secondary-color);
+            border: 1px solid var(--secondary-color);
+            box-shadow: none;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+        .exit-btn:hover { background: var(--secondary-color); color: white; box-shadow: none; transform: none; }
 
         #timer-bar {
             height: 10px;
@@ -192,14 +211,17 @@
                 <option value="chinois (Chine et Asie de l'Est)">🇨🇳 Chinois (Asie)</option>
             </select>
 
-            <button id="start-btn">Lancer le Défi</button>
+            <button id="start-btn">Lancer le Défi (30 Questions)</button>
         </div>
 
         <!-- JEU -->
         <div id="game-screen" class="screen">
             <div class="game-header">
-                <span>Score: <span id="score">0</span></span>
-                <span>Question: <span id="question-num">1</span>/5</span>
+                <div class="header-info">
+                    <span>Score: <span id="score">0</span></span>
+                    <span>Question: <span id="question-num">1</span>/<span id="total-questions">30</span></span>
+                </div>
+                <button id="exit-btn" class="exit-btn">Quitter</button>
             </div>
             
             <div id="timer-bar">
@@ -213,7 +235,7 @@
         <!-- FIN -->
         <div id="end-screen" class="screen">
             <h1>Terminé !</h1>
-            <p class="subtitle">Voici ton score final</p>
+            <p class="subtitle">Voici ton score final sur 30</p>
             <div id="final-score">0</div>
             <button id="restart-btn">Rejouer</button>
         </div>
@@ -223,7 +245,7 @@
         const GROQ_API_URL = '/api/groq';
         let currentScore = 0;
         let currentQuestionNum = 1;
-        const totalQuestions = 5;
+        const totalQuestions = 30; // Mis à jour à 30
         let timerInterval;
         let timeLeft = 15;
 
@@ -232,6 +254,16 @@
         const endScreen = document.getElementById('end-screen');
 
         document.getElementById('start-btn').addEventListener('click', startQuiz);
+        
+        // Bouton Quitter pendant la partie
+        document.getElementById('exit-btn').addEventListener('click', () => {
+            clearInterval(timerInterval); // Arrête le chrono
+            currentScore = 0;
+            currentQuestionNum = 1;
+            gameScreen.classList.remove('active');
+            homeScreen.classList.add('active');
+        });
+
         document.getElementById('restart-btn').addEventListener('click', () => {
             currentScore = 0;
             currentQuestionNum = 1;
