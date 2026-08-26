@@ -28,15 +28,16 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "groq/compound",
+        model: "llama-3.1-8b-instant", // Modèle rapide et sans raisonnement caché
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7 // Un peu de créativité pour varier les questions
+        temperature: 0.7,
+        max_tokens: 150 // On coupe le texte s'il dépasse pour économiser les tokens
       })
     });
 
     const data = await response.json();
     
-    // NOUVEAU : Si Groq renvoie une erreur, on l'affiche clairement !
+    // Si Groq renvoie une erreur, on l'affiche clairement
     if (!response.ok) {
       console.error('Erreur renvoyée par Groq :', data);
       return res.status(500).json({ error: `Erreur Groq: ${data.error?.message || JSON.stringify(data)}` });
