@@ -17,6 +17,7 @@
             --bg-dark: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.8);
             --text-color: #f8fafc;
+            --gold-color: #ffd700;
         }
 
         * {
@@ -72,7 +73,7 @@
             text-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
         }
 
-        p.subtitle { text-align: center; margin-bottom: 40px; color: #94a3b8; font-size: 16px; }
+        p.subtitle { text-align: center; margin-bottom: 30px; color: #94a3b8; font-size: 16px; }
 
         label { display: block; margin-bottom: 10px; font-weight: bold; color: var(--primary-color); text-transform: uppercase; font-size: 14px; }
 
@@ -107,7 +108,20 @@
 
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 242, 255, 0.5); }
         button:active { transform: translateY(1px); }
-        button:disabled { background: #334155; color: #64748b; box-shadow: none; transform: none; }
+
+        /* RÈGLES & GAINS */
+        .rules-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .rules-box h3 { color: var(--primary-color); margin-bottom: 15px; text-align: center; }
+        .rules-box ul { list-style: none; }
+        .rules-box li { margin-bottom: 10px; display: flex; align-items: center; font-size: 14px; }
+        .rules-box li span { margin-right: 10px; font-size: 18px; }
+        .prize-text { color: var(--gold-color); font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
 
         .game-header {
             display: flex;
@@ -211,7 +225,30 @@
                 <option value="chinois (Chine et Asie de l'Est)">🇨🇳 Chinois (Asie)</option>
             </select>
 
-            <button id="start-btn">Lancer le Défi (30 Questions)</button>
+            <button id="start-btn">Lancer le Défi</button>
+        </div>
+
+        <!-- RÈGLES & GAINS -->
+        <div id="rules-screen" class="screen">
+            <h1>Règles du Jeu</h1>
+            <div class="rules-box">
+                <h3>📝 Comment jouer ?</h3>
+                <ul>
+                    <li><span>❓</span> 30 questions générées par l'IA.</li>
+                    <li><span>⏱️</span> 15 secondes par question.</li>
+                    <li><span>✅</span> 100 points par bonne réponse.</li>
+                    <li><span>⚡</span> Sois rapide, l'IA n'attend pas !</li>
+                </ul>
+            </div>
+            <div class="rules-box" style="border-color: var(--gold-color);">
+                <h3 class="prize-text">🎁 Gains & Récompenses</h3>
+                <p style="text-align: center; font-size: 14px; line-height: 1.5;">
+                    Atteins un score de <span class="prize-text">3000 points</span> pour participer automatiquement au tirage au sort mensuel !<br>
+                    Tente de gagner des cartes cadeaux (Amazon, Netflix) et des prix en argent réel.<br><br>
+                    <em>Joue, gagne, et domine le classement !</em>
+                </p>
+            </div>
+            <button id="start-quiz-btn">J'ai compris, en jeu !</button>
         </div>
 
         <!-- JEU -->
@@ -242,20 +279,29 @@
     </div>
 
     <script>
-        const GROQ_API_URL = '/api/groq';
+        // CHANGEMENT ICI : On pointe vers la nouvelle API Gemini
+        const API_URL = '/api/gemini'; 
         let currentScore = 0;
         let currentQuestionNum = 1;
         const totalQuestions = 30;
         let timerInterval;
         let timeLeft = 15;
-        let questionStartTime; // Pour mémoriser quand la question a commencé
-        const MIN_TIME_PER_QUESTION = 5; // Limite de 5 secondes minimum par question
+        let questionStartTime;
+        const MIN_TIME_PER_QUESTION = 5;
 
         const homeScreen = document.getElementById('home-screen');
+        const rulesScreen = document.getElementById('rules-screen');
         const gameScreen = document.getElementById('game-screen');
         const endScreen = document.getElementById('end-screen');
 
-        document.getElementById('start-btn').addEventListener('click', startQuiz);
+        // Bouton Accueil -> Règles
+        document.getElementById('start-btn').addEventListener('click', () => {
+            homeScreen.classList.remove('active');
+            rulesScreen.classList.add('active');
+        });
+
+        // Bouton Règles -> Jeu
+        document.getElementById('start-quiz-btn').addEventListener('click', startQuiz);
         
         document.getElementById('exit-btn').addEventListener('click', () => {
             clearInterval(timerInterval);
@@ -273,7 +319,7 @@
         });
 
         async function startQuiz() {
-            homeScreen.classList.remove('active');
+            rulesScreen.classList.remove('active');
             gameScreen.classList.add('active');
             currentScore = 0;
             currentQuestionNum = 1;
@@ -291,7 +337,7 @@
             const language = document.getElementById('language-select').value;
 
             try {
-                const response = await fetch(GROQ_API_URL, {
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ theme, language })
@@ -319,7 +365,7 @@
         }
 
         function startTimer() {
-            questionStartTime = Date.now(); // On enregistre l'heure de début
+            questionStartTime = Date.now();
             timeLeft = 15;
             const timerProgress = document.getElementById('timer-progress');
             timerProgress.style.transition = 'none';
@@ -341,7 +387,6 @@
         }
 
         function selectAnswer(selectedIndex, correctIndex, clickedBtn) {
-            // On arrête le chrono visuel, il se gèle là où il est !
             clearInterval(timerInterval);
             const timerProgress = document.getElementById('timer-progress');
             const computedStyle = window.getComputedStyle(timerProgress);
@@ -363,12 +408,10 @@
                 buttons[correctIndex].classList.add('correct');
             }
 
-            // NOUVELLE LOGIQUE : Calculer le temps d'attente pour respecter le "timing à l'aise"
             const elapsedTime = (Date.now() - questionStartTime) / 1000;
-            let waitTime = 1500; // Temps standard (1.5s) pour montrer la réponse si le joueur a mis plus de 5 sec
+            let waitTime = 1500;
 
             if (elapsedTime < MIN_TIME_PER_QUESTION) {
-                // S'il a cliqué trop vite, on calcule combien de temps il faut attendre
                 waitTime = (MIN_TIME_PER_QUESTION - elapsedTime) * 1000;
             }
 
