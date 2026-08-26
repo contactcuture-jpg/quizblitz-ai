@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     (Note: "correct_index" est l'index de la bonne réponse, de 0 à 3).`;
 
     // Appel à l'API de Google Gemini
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
