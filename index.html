@@ -6,11 +6,11 @@
     <title>QuizBlitz AI ⚡</title>
     <style>
         :root {
-            --primary-color: #00f2ff; /* Cyan Néon */
-            --secondary-color: #ff0055; /* Rose Néon */
-            --success-color: #00ff88; /* Vert Néon */
+            --primary-color: #00f2ff;
+            --secondary-color: #ff0055;
+            --success-color: #00ff88;
             --danger-color: #ff4444;
-            --bg-dark: #0f172a; /* Fond sombre bleu nuit */
+            --bg-dark: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.8);
             --text-color: #f8fafc;
         }
@@ -56,7 +56,6 @@
 
         .screen.active { display: flex; }
 
-        /* Accueil */
         h1 {
             text-align: center;
             margin-bottom: 10px;
@@ -106,7 +105,6 @@
         button:active { transform: translateY(1px); }
         button:disabled { background: #334155; color: #64748b; box-shadow: none; transform: none; }
 
-        /* Jeu */
         .game-header {
             display: flex;
             justify-content: space-between;
@@ -117,10 +115,8 @@
         }
 
         .header-info { display: flex; gap: 20px; }
-
         .game-header span span { color: var(--primary-color); }
 
-        /* Bouton Quitter */
         .exit-btn {
             width: auto;
             margin: 0;
@@ -245,9 +241,11 @@
         const GROQ_API_URL = '/api/groq';
         let currentScore = 0;
         let currentQuestionNum = 1;
-        const totalQuestions = 30; // Mis à jour à 30
+        const totalQuestions = 30;
         let timerInterval;
         let timeLeft = 15;
+        let questionStartTime; // Pour mémoriser quand la question a commencé
+        const MIN_TIME_PER_QUESTION = 5; // Limite de 5 secondes minimum par question
 
         const homeScreen = document.getElementById('home-screen');
         const gameScreen = document.getElementById('game-screen');
@@ -255,9 +253,8 @@
 
         document.getElementById('start-btn').addEventListener('click', startQuiz);
         
-        // Bouton Quitter pendant la partie
         document.getElementById('exit-btn').addEventListener('click', () => {
-            clearInterval(timerInterval); // Arrête le chrono
+            clearInterval(timerInterval);
             currentScore = 0;
             currentQuestionNum = 1;
             gameScreen.classList.remove('active');
@@ -318,6 +315,7 @@
         }
 
         function startTimer() {
+            questionStartTime = Date.now(); // On enregistre l'heure de début
             timeLeft = 15;
             const timerProgress = document.getElementById('timer-progress');
             timerProgress.style.transition = 'none';
@@ -339,7 +337,14 @@
         }
 
         function selectAnswer(selectedIndex, correctIndex, clickedBtn) {
+            // On arrête le chrono visuel, il se gèle là où il est !
             clearInterval(timerInterval);
+            const timerProgress = document.getElementById('timer-progress');
+            const computedStyle = window.getComputedStyle(timerProgress);
+            const currentWidth = computedStyle.width;
+            timerProgress.style.transition = 'none';
+            timerProgress.style.width = currentWidth;
+
             const buttons = document.querySelectorAll('.option-btn');
             buttons.forEach(btn => btn.style.pointerEvents = 'none');
 
@@ -354,6 +359,15 @@
                 buttons[correctIndex].classList.add('correct');
             }
 
+            // NOUVELLE LOGIQUE : Calculer le temps d'attente pour respecter le "timing à l'aise"
+            const elapsedTime = (Date.now() - questionStartTime) / 1000;
+            let waitTime = 1500; // Temps standard (1.5s) pour montrer la réponse si le joueur a mis plus de 5 sec
+
+            if (elapsedTime < MIN_TIME_PER_QUESTION) {
+                // S'il a cliqué trop vite, on calcule combien de temps il faut attendre
+                waitTime = (MIN_TIME_PER_QUESTION - elapsedTime) * 1000;
+            }
+
             setTimeout(() => {
                 currentQuestionNum++;
                 if (currentQuestionNum <= totalQuestions) {
@@ -361,7 +375,7 @@
                 } else {
                     endQuiz();
                 }
-            }, 2000);
+            }, waitTime);
         }
 
         function endQuiz() {
