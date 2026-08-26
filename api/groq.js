@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant", // Modèle rapide et sans raisonnement caché
+        model: "groq/compound", // Modèle rapide et sans raisonnement caché
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
         max_tokens: 150 // On coupe le texte s'il dépasse pour économiser les tokens
