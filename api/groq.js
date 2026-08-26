@@ -9,11 +9,15 @@ export default async function handler(req, res) {
   try {
     const { theme, language } = req.body;
 
-    // L'instruction (Prompt) pour le ciblage géographique et linguistique
+    // Numéro aléatoire pour forcer l'IA à changer de question à chaque fois
+    const randomSeed = Math.floor(Math.random() * 1000000);
+
+    // L'instruction (Prompt)
     const prompt = `Tu es un générateur de quiz pour un jeu mobile. 
     Génère UNE SEULE question de niveau moyen en ${language} sur le thème : ${theme}.
     La question doit être culturellement pertinente pour la région ${language}.
-    Tu dois répondre STRICTEMENT au format JSON comme ceci, sans aucun autre texte:
+    Identifiant de génération: ${randomSeed} (Utilise-le pour générer une question unique et différente des précédentes).
+    Tu dois répondre STRICTEMENT au format JSON, sans aucun texte avant ou après:
     {
       "question": "Texte de la question ici ?",
       "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
@@ -28,10 +32,10 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "groq/compound", // Modèle rapide et sans raisonnement caché
+        model: "groq/compound",
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-        max_tokens: 150 // On coupe le texte s'il dépasse pour économiser les tokens
+        temperature: 0.9, // Température plus haute pour plus de créativité
+        max_tokens: 500 // Augmenté pour éviter que le JSON soit coupé
       })
     });
 
@@ -45,12 +49,12 @@ export default async function handler(req, res) {
 
     let rawContent = data.choices[0].message.content;
 
-    // Parfois l'IA ajoute des balises ```json, on les enlève pour avoir un JSON pur
-    if (rawContent.startsWith('```json')) {
-      rawContent = rawContent.substring(7);
-    }
-    if (rawContent.endsWith('```')) {
-      rawContent = rawContent.substring(0, rawContent.length - 3);
+    // Nettoyage intelligent pour extraire uniquement le JSON
+    const startIndex = rawContent.indexOf('{');
+    const endIndex = rawContent.lastIndexOf('}');
+    
+    if (startIndex !== -1 && endIndex !== -1) {
+      rawContent = rawContent.substring(startIndex, endIndex + 1);
     }
 
     const quizData = JSON.parse(rawContent.trim());
