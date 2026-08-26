@@ -35,6 +35,13 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
+    
+    // NOUVEAU : Si Groq renvoie une erreur, on l'affiche clairement !
+    if (!response.ok) {
+      console.error('Erreur renvoyée par Groq :', data);
+      return res.status(500).json({ error: `Erreur Groq: ${data.error?.message || JSON.stringify(data)}` });
+    }
+
     let rawContent = data.choices[0].message.content;
 
     // Parfois l'IA ajoute des balises ```json, on les enlève pour avoir un JSON pur
