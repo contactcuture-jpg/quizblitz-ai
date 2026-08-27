@@ -274,7 +274,7 @@
         }
         
         /* Emplacements Pubs (Cachés visuellement, gérés par JS) */
-        .ad-slot { display: none !important; }
+        .ad-slot { display: none; }
 
     </style>
 </head>
@@ -416,24 +416,25 @@
         const adReviveModal = document.getElementById('ad-revive-modal');
 
         // ==========================================
-        // FONCTION D'INJECTION MONETAG VIGNETTE
+        // FONCTION D'INJECTION MONETAG MULTITAG
         // ==========================================
-        function triggerMonetagVignette() {
+        function triggerMonetagAd() {
             try {
-                // 1. Nettoyer les anciens scripts Monetag pour éviter la duplication dans la PWA
-                const oldScripts = document.querySelectorAll('script[src*="vignette.min.js"]');
+                // 1. Nettoyer les anciens scripts Monetag
+                const oldScripts = document.querySelectorAll('script[src*="quge5.com"]');
                 oldScripts.forEach(el => el.remove());
 
-                // 2. Créer et injecter le nouveau script
+                // 2. Créer et injecter le nouveau script Multitag
                 const s = document.createElement('script');
-                s.dataset.zone = '11668298';
-                s.src = 'https://n6wxm.com/vignette.min.js';
+                s.src = 'https://quge5.com/88/tag.min.js';
+                s.setAttribute('data-zone', '273787');
+                s.async = true;
+                s.setAttribute('data-cfasync', 'false');
                 
-                // Append au body pour exécuter le script
                 document.body.appendChild(s);
-                console.log("Publicité Monetag Vignette injectée.");
+                console.log("Publicité Monetag Multitag injectée.");
             } catch(e) {
-                console.error("Erreur d'injection Monetag:", e);
+                console.error("Erreur Monetag:", e);
             }
         }
         // ==========================================
@@ -520,8 +521,8 @@
             document.getElementById('question-text').classList.add('loading-spinner');
             document.getElementById('options-container').innerHTML = '';
             
-            // Lancer la vignette Monetag au début du chargement
-            triggerMonetagVignette();
+            // Lancer la pub Monetag au début du chargement
+            triggerMonetagAd();
 
             const theme = document.getElementById('theme-select').value;
             const language = document.getElementById('language-select').value;
@@ -560,7 +561,7 @@
         function displayQuestion() {
             // Vérifier si on doit afficher une pub interstitielle
             if (INTERSTITIAL_QUESTIONS.includes(currentQuestionNum)) {
-                triggerMonetagVignette();
+                triggerMonetagAd();
             }
 
             const q = quizQuestions[currentQuestionNum - 1];
@@ -644,15 +645,15 @@
             adReviveModal.classList.remove('active');
             revivesUsed++;
             
-            // Déclencher la vignette Monetag quand on clique sur "Regarder"
-            triggerMonetagVignette();
+            // Déclencher la pub Monetag quand on clique sur "Regarder"
+            triggerMonetagAd();
 
             // Réinitialiser la question après un court délai pour laisser la pub s'afficher
             setTimeout(() => {
                 const buttons = document.querySelectorAll('.option-btn');
                 buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
                 startTimer();
-            }, 1000); // Délai de 1 seconde pour laisser la pub s'ouvrir
+            }, 1000); // Délai de 1 seconde
         });
 
         document.getElementById('skip-ad-btn').addEventListener('click', () => {
