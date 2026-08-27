@@ -12,6 +12,7 @@ export default async function handler(req, res) {
     Génère 30 questions de niveau moyen en ${language} sur le thème : ${theme}.
     Les questions doivent être culturellement pertinentes pour la région ${language}.
     Sois très créatif et original. Évite les questions trop évidentes ou classiques.
+    TRÈS IMPORTANT : Tu DOIS absolument écrire la question et les options dans la langue exacte demandée (${language}) en utilisant son alphabet natif (ex: alphabet cyrillique pour le russe, caractères chinois pour le chinois). Ne traduis jamais en français.
     Tu dois répondre STRICTEMENT au format JSON (un tableau contenant 30 objets), sans aucun texte avant ou après:
     [
       {
@@ -61,9 +62,3 @@ export default async function handler(req, res) {
     }
 
     res.status(200).json(quizData);
-
-  } catch (error) {
-    console.error('Erreur API Gemini:', error);
-    res.status(500).json({ error: `Erreur système: ${error.message}` });
-  }
-}
