@@ -151,7 +151,9 @@
             border-radius: 20px;
             border: 1px solid var(--money-color);
             font-size: 14px;
+            transition: transform 0.2s;
         }
+        .money-counter.pulse { transform: scale(1.1); }
 
         .exit-btn {
             width: auto;
@@ -271,7 +273,7 @@
             box-shadow: none;
         }
         
-        /* Emplacement Pub */
+        /* Emplacements Pubs */
         .ad-slot {
             background: #0f172a;
             border: 2px dashed #334155;
@@ -281,6 +283,14 @@
             margin: 20px 0;
             font-size: 12px;
             border-radius: 8px;
+        }
+        /* Emplacement Pub de Chargement (plus grand) */
+        .ad-loading-slot {
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
         }
 
     </style>
@@ -346,7 +356,7 @@
                     <span id="question-label">Question: <span id="question-num">1</span>/<span id="total-questions">30</span></span>
                 </div>
                 <div style="display:flex; gap:10px; align-items:center;">
-                    <span class="money-counter">💵 <span id="virtual-money">0,00$</span> 🎁</span>
+                    <span class="money-counter" id="money-display">💵 <span id="virtual-money">0,00$</span> 🎁</span>
                     <button id="exit-btn" class="exit-btn">Quitter</button>
                 </div>
             </div>
@@ -356,7 +366,12 @@
             <div id="question-text" class="loading-spinner">Chargement...</div>
             <div id="options-container"></div>
             
-            <!-- Emplacement pour les pubs interstitielles (caché par défaut) -->
+            <!-- Emplacement Pub de Chargement (apparaît pendant que l'IA prépare les questions) -->
+            <div id="ad-loading" class="ad-slot ad-loading-slot" style="display:none;">
+                PUB ICI (Monetag/Adsterra) - Pendant le chargement de l'IA
+            </div>
+
+            <!-- Emplacement pour les pubs interstitielles (au milieu des questions) -->
             <div id="ad-interstitial" class="ad-slot" style="display:none;">
                 PUB ICI (Monetag/Adsterra) - Cliquez pour continuer
             </div>
@@ -498,6 +513,11 @@
             document.getElementById('question-text').innerText = t.loading;
             document.getElementById('question-text').classList.add('loading-spinner');
             document.getElementById('options-container').innerHTML = '';
+            
+            // Afficher la pub de chargement
+            document.getElementById('ad-loading').style.display = 'flex';
+            // Cacher la pub interstitielle si elle était restée
+            document.getElementById('ad-interstitial').style.display = 'none';
 
             const theme = document.getElementById('theme-select').value;
             const language = document.getElementById('language-select').value;
@@ -511,9 +531,13 @@
 
                 if (!response.ok) throw new Error('Erreur API');
                 quizQuestions = await response.json(); 
+                
+                // Cacher la pub de chargement une fois les questions prêtes
+                document.getElementById('ad-loading').style.display = 'none';
                 displayQuestion();
             } catch (error) {
                 document.getElementById('question-text').innerText = "Erreur de connexion. Réessaie.";
+                document.getElementById('ad-loading').style.display = 'none';
             }
         });
         
@@ -588,12 +612,21 @@
 
             if (isCorrect) {
                 clickedBtn.classList.add('correct');
-                currentScore += 1; // On incrémente de 1 question
-                // Calcul de l'argent : 0.33 par question, 0.13 pour la dernière pour tomber sur 10.00$                 virtualMoney = currentScore * 0.33;
+                currentScore += 1; 
+                
+                // Calcul de l'argent
+                virtualMoney = currentScore * 0.33;
                 if (currentScore === 30) virtualMoney = 10.00;
                 
-                document.getElementById('score').innerText = currentScore;
-                document.getElementById('virtual-money').innerText = virtualMoney.toFixed(2) + "$";
+                // Mise à jour IMMÉDIATE du DOM
+                document.getElementById('score').textContent = currentScore;
+                document.getElementById('virtual-money').textContent = virtualMoney.toFixed(2) + "$";
+                
+                // Petit effet visuel sur le compteur
+                const moneyDisplay = document.getElementById('money-display');
+                moneyDisplay.classList.add('pulse');
+                setTimeout(() => moneyDisplay.classList.remove('pulse'), 200);
+
                 nextQuestion();
             } else {
                 if (selectedIndex !== -1) clickedBtn.classList.add('wrong');
