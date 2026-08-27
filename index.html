@@ -273,25 +273,8 @@
             box-shadow: none;
         }
         
-        /* Emplacements Pubs */
-        .ad-slot {
-            background: #0f172a;
-            border: 2px dashed #334155;
-            color: #64748b;
-            text-align: center;
-            padding: 20px;
-            margin: 20px 0;
-            font-size: 12px;
-            border-radius: 8px;
-        }
-        /* Emplacement Pub de Chargement (plus grand) */
-        .ad-loading-slot {
-            min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
+        /* Emplacements Pubs (Cachés visuellement, gérés par JS) */
+        .ad-slot { display: none !important; }
 
     </style>
 </head>
@@ -366,13 +349,13 @@
             <div id="question-text" class="loading-spinner">Chargement...</div>
             <div id="options-container"></div>
             
-            <!-- Emplacement Pub de Chargement (apparaît pendant que l'IA prépare les questions) -->
-            <div id="ad-loading" class="ad-slot ad-loading-slot" style="display:none;">
+            <!-- Emplacement Pub de Chargement (Caché, géré par JS) -->
+            <div id="ad-loading" class="ad-slot ad-loading-slot">
                 PUB ICI (Monetag/Adsterra) - Pendant le chargement de l'IA
             </div>
 
-            <!-- Emplacement pour les pubs interstitielles (au milieu des questions) -->
-            <div id="ad-interstitial" class="ad-slot" style="display:none;">
+            <!-- Emplacement pour les pubs interstitielles (Caché, géré par JS) -->
+            <div id="ad-interstitial" class="ad-slot">
                 PUB ICI (Monetag/Adsterra) - Cliquez pour continuer
             </div>
         </div>
@@ -537,12 +520,7 @@
             document.getElementById('question-text').classList.add('loading-spinner');
             document.getElementById('options-container').innerHTML = '';
             
-            // Afficher la pub de chargement
-            document.getElementById('ad-loading').style.display = 'flex';
-            // Cacher la pub interstitielle si elle était restée
-            document.getElementById('ad-interstitial').style.display = 'none';
-
-            // INJECTER LA PUB MONETAG PENDANT LE CHARGEMENT DE L'IA
+            // Lancer la vignette Monetag au début du chargement
             triggerMonetagVignette();
 
             const theme = document.getElementById('theme-select').value;
@@ -558,12 +536,9 @@
                 if (!response.ok) throw new Error('Erreur API');
                 quizQuestions = await response.json(); 
                 
-                // Cacher la pub de chargement une fois les questions prêtes
-                document.getElementById('ad-loading').style.display = 'none';
                 displayQuestion();
             } catch (error) {
                 document.getElementById('question-text').innerText = "Erreur de connexion. Réessaie.";
-                document.getElementById('ad-loading').style.display = 'none';
             }
         });
         
@@ -584,13 +559,8 @@
 
         function displayQuestion() {
             // Vérifier si on doit afficher une pub interstitielle
-            // CORRECTION ICI : on enlève le "-1" pour que ça tombe juste sur 8, 15, 22 et 29
             if (INTERSTITIAL_QUESTIONS.includes(currentQuestionNum)) {
-                document.getElementById('ad-interstitial').style.display = 'block';
-                // INJECTER LA PUB MONETAG POUR LES QUESTIONS 8, 15, 22, 29
                 triggerMonetagVignette();
-            } else {
-                document.getElementById('ad-interstitial').style.display = 'none';
             }
 
             const q = quizQuestions[currentQuestionNum - 1];
@@ -673,11 +643,16 @@
         document.getElementById('watch-ad-btn').addEventListener('click', () => {
             adReviveModal.classList.remove('active');
             revivesUsed++;
-            // ICI, tu mettras le code Monetag/Adsterra pour déclencher la pub vidéo
-            // Pour l'instant, on relance juste la même question
-            const buttons = document.querySelectorAll('.option-btn');
-            buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
-            startTimer();
+            
+            // Déclencher la vignette Monetag quand on clique sur "Regarder"
+            triggerMonetagVignette();
+
+            // Réinitialiser la question après un court délai pour laisser la pub s'afficher
+            setTimeout(() => {
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
+                startTimer();
+            }, 1000); // Délai de 1 seconde pour laisser la pub s'ouvrir
         });
 
         document.getElementById('skip-ad-btn').addEventListener('click', () => {
