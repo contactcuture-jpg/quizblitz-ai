@@ -1,5 +1,5 @@
 export const config = {
-  maxDuration: 60, // Autorise Vercel à attendre jusqu'à 60 secondes
+  maxDuration: 60,
 };
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -12,16 +12,16 @@ export default async function handler(req, res) {
   try {
     const { theme, language } = req.body;
 
-    const prompt = `Tu es un générateur de quiz pour un jeu mobile. 
-    Génère 30 questions de niveau moyen en ${language} sur le thème : ${theme}.
+    const prompt = `Tu es un générateur de quiz pour un jeu mobile expert. 
+    Génère 30 questions DIFFICILES en ${language} sur le thème : ${theme}.
     Les questions doivent être culturellement pertinentes pour la région ${language}.
-    Sois très créatif et original. Évite les questions trop évidentes ou classiques.
+    Sois très créatif et original. Évite absolument les questions trop évidentes ou classiques.
     
-    RÈGLE SPÉCIALE ANTI-TRICHE : Parmi ces 30 questions, tu DOIS en inclure EXACTEMENT UNE qui est un "piège". 
-    Une question piège est une question contre-intuitive dont la réponse évidente est FAUSSE (ex: "Quelle est la capitale de l'Australie ?" Faux: Sydney, Vrai: Canberra, ou "De quelle couleur est la boîte noire d'un avion ?" Vrai: Orange). 
-    Cette question piège doit être placée aléatoirement parmi les 30 pour surprendre les joueurs qui essaient de tricher en cherchant trop vite.
+    RÈGLE SPÉCIALE ANTI-TRICHE ET DE SÉLECTION : Parmi ces 30 questions, tu DOIS en inclure EXACTEMENT UNE qui est un "piège fatal". 
+    Une question piège fatal est une question si contre-intuitive ou obscure que 99% des gens se trompent sur la réponse évidente (ex: "Quelle est la capitale de l'Australie ?" Faux: Sydney, Vrai: Canberra, ou "De quelle couleur est la boîte noire d'un avion ?" Vrai: Orange). 
+    Cette question doit être placée aléatoirement parmi les 30. C'est elle qui empêchera les joueurs de gagner facilement le 30/30.
     
-    TRÈS IMPORTANT : Tu DOIS absolument écrire la question et les options dans la langue exacte demandée (${language}) en utilisant son alphabet natif (ex: alphabet cyrillique pour le russe, caractères chinois pour le chinois). Ne traduis jamais en français.
+    TRÈS IMPORTANT : Tu DOIS absolument écrire la question et les options dans la langue exacte demandée (${language}) en utilisant son alphabet natif. Ne traduis jamais en français.
     Tu dois répondre STRICTEMENT au format JSON (un tableau contenant 30 objets), sans aucun texte avant ou après:
     [
       {
@@ -53,7 +53,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: `Erreur Gemini: ${data.error?.message || JSON.stringify(data)}` });
     }
 
-    // Sécurité : si l'IA n'a rien renvoyé
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
       console.error('Réponse inattendue de Gemini :', data);
       return res.status(500).json({ error: 'L\'IA n\'a pas généré de réponse valide.' });
@@ -61,7 +60,6 @@ export default async function handler(req, res) {
 
     let rawContent = data.candidates[0].content.parts[0].text;
 
-    // Nettoyage intelligent pour extraire uniquement le JSON
     const startIndex = rawContent.indexOf('[');
     const endIndex = rawContent.lastIndexOf(']');
     
