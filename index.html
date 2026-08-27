@@ -48,6 +48,7 @@
             box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
             border-left: 1px solid rgba(255,255,255,0.1);
             border-right: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
 
         .screen {
@@ -103,6 +104,9 @@
             box-shadow: 0 4px 15px rgba(0, 242, 255, 0.3);
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-decoration: none;
+            display: block;
+            text-align: center;
         }
 
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 242, 255, 0.5); }
@@ -192,6 +196,49 @@
 
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
+        /* Bouton Tombola */
+        .tombola-btn {
+            background: linear-gradient(45deg, var(--gold-color), #ffac3c) !important;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3) !important;
+            margin-bottom: 15px;
+            color: #0f172a !important;
+            border: 2px solid var(--gold-color) !important;
+        }
+        .tombola-btn:hover { box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5) !important; }
+        
+        .tombola-btn.disabled {
+            background: #334155 !important;
+            color: #64748b !important;
+            box-shadow: none !important;
+            border-color: #475569 !important;
+            pointer-events: none;
+        }
+
+        /* Fenêtre Popup (Modal) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #1e293b;
+            border: 2px solid var(--gold-color);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+            text-align: center;
+        }
+        .modal-box h3 { color: var(--gold-color); margin-bottom: 15px; font-size: 24px; }
+        .modal-box p { font-size: 15px; line-height: 1.5; margin-bottom: 25px; color: #e2e8f0; }
+
     </style>
 </head>
 <body>
@@ -200,9 +247,9 @@
         <!-- ACCUEIL -->
         <div id="home-screen" class="screen active">
             <h1>QuizBlitz AI</h1>
-            <p class="subtitle">⚡ Affronte l'IA et teste ta culture générale ! ⚡</p>
+            <p class="subtitle" id="home-subtitle">⚡ Affronte l'IA et teste ta culture générale ! ⚡</p>
             
-            <label for="theme">Choisis ton Thème</label>
+            <label for="theme-select" id="label-theme">Choisis ton Thème</label>
             <select id="theme-select">
                 <option value="Culture Générale">Culture Générale</option>
                 <option value="Sport">Sport</option>
@@ -211,8 +258,8 @@
                 <option value="Géographie">Géographie</option>
             </select>
 
-            <label for="language">Choisis ta Région / Langue</label>
-            <select id="language-select">
+            <label for="language-select" id="label-language">Choisis ta Région / Langue</label>
+            <select id="language-select" onchange="updateUILanguage()">
                 <option value="français (Europe)">🇫🇷 Français (Europe)</option>
                 <option value="français (Afrique du Nord/MENA)">🇲🇦 Français (MENA)</option>
                 <option value="anglais (International)">🇬🇧 Anglais (International)</option>
@@ -223,24 +270,26 @@
                 <option value="chinois (Chine et Asie de l'Est)">🇨🇳 Chinois (Asie)</option>
             </select>
 
+            <!-- Bouton Tombola sur l'accueil -->
+            <button id="show-tombola-btn" class="tombola-btn">🎁 Participer au tirage au sort</button>
             <button id="start-btn">Lancer le Défi</button>
         </div>
 
         <!-- RÈGLES & GAINS -->
         <div id="rules-screen" class="screen">
-            <h1>Règles du Jeu</h1>
+            <h1 id="rules-title">Règles du Jeu</h1>
             <div class="rules-box">
-                <h3>📝 Comment jouer ?</h3>
+                <h3 id="rules-how-title">📝 Comment jouer ?</h3>
                 <ul>
-                    <li><span>❓</span> 30 questions générées par l'IA.</li>
-                    <li><span>⏱️</span> 15 secondes par question.</li>
-                    <li><span>✅</span> 100 points par bonne réponse.</li>
-                    <li><span>⚡</span> Sois rapide, l'IA n'attend pas !</li>
+                    <li><span>❓</span> <span id="rule1">30 questions générées par l'IA.</span></li>
+                    <li><span>⏱️</span> <span id="rule2">15 secondes par question.</span></li>
+                    <li><span>✅</span> <span id="rule3">100 points par bonne réponse.</span></li>
+                    <li><span>⚡</span> <span id="rule4">Sois rapide, l'IA n'attend pas !</span></li>
                 </ul>
             </div>
             <div class="rules-box" style="border-color: var(--gold-color);">
-                <h3 class="prize-text">🎁 Gains & Récompenses</h3>
-                <p style="text-align: center; font-size: 14px; line-height: 1.5;">
+                <h3 class="prize-text" id="prize-title">🎁 Gains & Récompenses</h3>
+                <p id="prize-text-content" style="text-align: center; font-size: 14px; line-height: 1.5;">
                     Atteins un score de <span class="prize-text">3000 points</span> pour participer automatiquement au tirage au sort mensuel !<br>
                     Tente de gagner des cartes cadeaux (Amazon, Netflix) et des prix en argent réel.<br><br>
                     <em>Joue, gagne, et domine le classement !</em>
@@ -253,8 +302,8 @@
         <div id="game-screen" class="screen">
             <div class="game-header">
                 <div class="header-info">
-                    <span>Score: <span id="score">0</span></span>
-                    <span>Question: <span id="question-num">1</span>/<span id="total-questions">30</span></span>
+                    <span id="score-label">Score: <span id="score">0</span></span>
+                    <span id="question-label">Question: <span id="question-num">1</span>/<span id="total-questions">30</span></span>
                 </div>
                 <button id="exit-btn" class="exit-btn">Quitter</button>
             </div>
@@ -269,10 +318,22 @@
 
         <!-- FIN -->
         <div id="end-screen" class="screen">
-            <h1>Terminé !</h1>
-            <p class="subtitle">Voici ton score final sur 30</p>
+            <h1 id="end-title">Terminé !</h1>
+            <p class="subtitle" id="final-score-subtitle">Voici ton score final sur 30</p>
             <div id="final-score">0</div>
+            <!-- Bouton Tombola de fin (désactivé par défaut) -->
+            <a href="#" target="_blank" class="tombola-btn disabled" id="end-tombola-btn">🎁 Participer au tirage au sort</a>
+            <p id="tombola-msg" style="text-align:center; font-size:13px; color:#94a3b8; margin-bottom:20px;"></p>
             <button id="restart-btn">Rejouer</button>
+        </div>
+
+        <!-- POPUP (MODAL) TOMBOLA -->
+        <div id="tombola-modal" class="modal-overlay">
+            <div class="modal-box">
+                <h3 id="modal-title">🎁 Inscription au Tombola</h3>
+                <p id="modal-text">L'inscription au tombola est conditionnée par l'atteinte d'un score de 2800 points dans une seule tentative. Atteindre 3000 points d'un coup est difficile vu les questions de l'IA. Tu devras donc répondre correctement à au moins 28 questions sur 30 pour accéder au formulaire d'inscription !</p>
+                <button id="close-modal-btn">J'ai compris !</button>
+            </div>
         </div>
     </div>
 
@@ -280,14 +341,82 @@
         const API_URL = '/api/gemini';
         let currentScore = 0;
         let currentQuestionNum = 1;
-        let quizQuestions = []; // Tableau qui contiendra nos 30 questions
+        let quizQuestions = []; 
         let timerInterval;
         let timeLeft = 15;
+
+        // Lien de ton formulaire (Remplace-le par le vrai plus tard)
+        const TOMBOLA_FORM_URL = "https://forms.gle/VOTRE_LIEN_FORMULAIRE";
 
         const homeScreen = document.getElementById('home-screen');
         const rulesScreen = document.getElementById('rules-screen');
         const gameScreen = document.getElementById('game-screen');
         const endScreen = document.getElementById('end-screen');
+        const tombolaModal = document.getElementById('tombola-modal');
+
+        // Dictionnaire de traduction (avec la condition tombola)
+        const translations = {
+            "français (Europe)": { home_sub: "⚡ Affronte l'IA et teste ta culture générale ! ⚡", label_theme: "Choisis ton Thème", label_lang: "Choisis ta Région / Langue", start_btn: "Lancer le Défi", rules_title: "Règles du Jeu", how_title: "📝 Comment jouer ?", r1: "30 questions générées par l'IA.", r2: "15 secondes par question.", r3: "100 points par bonne réponse.", r4: "Sois rapide, l'IA n'attend pas !", prize_title: "🎁 Gains & Récompenses", prize_txt: "Atteins un score de <span class='prize-text'>2800 points</span> pour débloquer le bouton d'or et participer au tirage au sort mensuel !<br>Tente de gagner des cartes cadeaux (Amazon, Netflix) et des prix en argent réel.<br><br><em>Joue, gagne, et domine le classement !</em>", start_quiz_btn: "J'ai compris, en jeu !", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quitter", end_title: "Terminé !", final_sub: "Voici ton score final sur 30", tombola_btn: "🎁 Participer au tirage au sort", restart_btn: "Rejouer", loading: "L'IA prépare vos 30 questions, patientez...", modal_title: "🎁 Inscription au Tombola", modal_txt: "L'inscription au tombola est conditionnée par l'atteinte d'un score de 2800 points dans une seule tentative. Atteindre 3000 points d'un coup est difficile vu les questions de l'IA. Tu devras donc répondre correctement à au moins 28 questions sur 30 pour accéder au formulaire d'inscription !", close_modal: "J'ai compris !", end_tombola_locked: "Atteins 2800 points pour débloquer l'inscription au tombola !" },
+            "anglais (International)": { home_sub: "⚡ Face the AI and test your general knowledge ! ⚡", label_theme: "Choose your Theme", label_lang: "Choose your Region / Language", start_btn: "Start Challenge", rules_title: "Game Rules", how_title: "📝 How to play?", r1: "30 AI-generated questions.", r2: "15 seconds per question.", r3: "100 points per correct answer.", r4: "Be fast, the AI doesn't wait!", prize_title: "🎁 Prizes & Rewards", prize_txt: "Reach a score of <span class='prize-text'>2800 points</span> to unlock the golden button and enter the monthly raffle !<br>Win gift cards (Amazon, Netflix) and real cash prizes.<br><br><em>Play, win, and rule the leaderboard!</em>", start_quiz_btn: "Got it, let's play!", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quit", end_title: "Finished!", final_sub: "Here is your final score out of 30", tombola_btn: "🎁 Enter the raffle", restart_btn: "Play Again", loading: "The AI is preparing your 30 questions, please wait...", modal_title: "🎁 Raffle Registration", modal_txt: "Registration for the raffle is conditional upon reaching a score of 2800 points in a single attempt. Reaching 3000 points at once is difficult given the AI questions. You must answer at least 28 out of 30 questions correctly to access the registration form!", close_modal: "Got it!", end_tombola_locked: "Reach 2800 points to unlock raffle registration!" },
+            "arabe (MENA)": { home_sub: "⚡ واجه الذكاء الاصطناعي واختبر معلوماتك العامة ! ⚡", label_theme: "اختر موضوعك", label_lang: "اختر منطقتك / لغتك", start_btn: "ابدأ التحدي", rules_title: "قواعد اللعبة", how_title: "📝 كيف تلعب؟", r1: "30 سؤالاً من إنشاء الذكاء الاصطناعي.", r2: "15 ثانية لكل سؤال.", r3: "100 نقطة لكل إجابة صحيحة.", r4: "كن سريعاً، الذكاء الاصطناعي لا ينتظر!", prize_title: "🎁 الجوائز والمكافآت", prize_txt: "احصل على درجة <span class='prize-text'>2800 نقطة</span> لفتح زر الذهب والمشاركة في السحب الشهري!<br>اربح بطاقات هدايا (أمازون، نتفليكس) وجوائز نقدية حقيقية.<br><br><em>العب، اربح، وتصدّر الترتيب!</em>", start_quiz_btn: "فهمت، هيا نلعب!", score_lbl: "النتيجة:", q_lbl: "سؤال:", exit_btn: "خروج", end_title: "انتهت!", final_sub: "هذه نتيجتك النهائية من 30", tombola_btn: "🎁 المشاركة في السحب", restart_btn: "العب مرة أخرى", loading: "الذكاء الاصطناعي يجهز أسئلتك الـ 30، يرجى الانتظار...", modal_title: "🎁 التسجيل في السحب", modal_txt: "التسجيل في السحب مشروط بالحصول على درجة 2800 نقطة في محاولة واحدة. الوصول إلى 3000 نقطة دفعة واحدة صعب نظراً لأسئلة الذكاء الاصطناعي. لذلك يجب أن تجيب بشكل صحيح على 28 سؤالاً على الأقل من أصل 30 للوصول إلى نموذج التسجيل!", close_modal: "فهمت!", end_tombola_locked: "احصل على 2800 نقطة لفتح التسجيل في السحب!" },
+            "espagnol (Espagne et Amérique Latine)": { home_sub: "⚡ Enfrenta a la IA y pon a prueba tu cultura general ! ⚡", label_theme: "Elige tu Tema", label_lang: "Elige tu Región / Idioma", start_btn: "Iniciar el Reto", rules_title: "Reglas del Juego", how_title: "📝 ¿Cómo jugar?", r1: "30 preguntas generadas por IA.", r2: "15 segundos por pregunta.", r3: "100 puntos por respuesta correcta.", r4: "¡Sé rápido, la IA no espera!", prize_title: "🎁 Premios y Recompensas", prize_txt: "¡Alcanza una puntuación de <span class='prize-text'>2800 puntos</span> para desbloquear el botón dorado y participar en el sorteo mensual!<br>Gana tarjetas de regalo (Amazon, Netflix) y premios en efectivo real.<br><br><em>¡Juega, gana y domina la clasificación!</em>", start_quiz_btn: "¡Entendido, a jugar!", score_lbl: "Puntuación:", q_lbl: "Pregunta:", exit_btn: "Salir", end_title: "¡Terminado!", final_sub: "Aquí está tu puntuación final de 30", tombola_btn: "🎁 Participar en el sorteo", restart_btn: "Jugar de nuevo", loading: "La IA está preparando tus 30 preguntas, por favor espera...", modal_title: "🎁 Inscripción al Sorteo", modal_txt: "La inscripción al sorteo está condicionada a alcanzar una puntuación de 2800 puntos en un solo intento. Alcanzar 3000 puntos de golpe es difícil debido a las preguntas de la IA. ¡Deberás responder correctamente a al menos 28 de 30 preguntas para acceder al formulario de inscripción!", close_modal: "¡Entendido!", end_tombola_locked: "¡Alcanza los 2800 puntos para desbloquear la inscripción!" },
+            "portugais (Brésil et Portugal)": { home_sub: "⚡ Enfrente a IA e teste seu conhecimento geral ! ⚡", label_theme: "Escolha seu Tema", label_lang: "Escolha sua Região / Idioma", start_btn: "Iniciar o Desafio", rules_title: "Regras do Jogo", how_title: "📝 Como jogar?", r1: "30 perguntas geradas por IA.", r2: "15 segundos por pergunta.", r3: "100 pontos por resposta correta.", r4: "Seja rápido, a IA não espera!", prize_title: "🎁 Prêmios e Recompensas", prize_txt: "Atinja uma pontuação de <span class='prize-text'>2800 pontos</span> para desbloquear o botão dourado e participar do sorteio mensal!<br>Ganhe cartões de presente (Amazon, Netflix) e prêmios em dinheiro real.<br><br><em>Jogue, ganhe e domine o ranking!</em>", start_quiz_btn: "Entendi, jogar!", score_lbl: "Pontuação:", q_lbl: "Pergunta:", exit_btn: "Sair", end_title: "Terminado!", final_sub: "Aqui está sua pontuação final de 30", tombola_btn: "🎁 Participar do sorteio", restart_btn: "Jogar novamente", loading: "A IA está preparando suas 30 perguntas, aguarde...", modal_title: "🎁 Inscrição no Sorteio", modal_txt: "A inscrição no sorteio está condicionada a atingir uma pontuação de 2800 pontos em uma única tentativa. Alcançar 3000 pontos de uma vez é difícil devido às perguntas da IA. Você precisará responder corretamente a pelo menos 28 das 30 perguntas para acessar o formulário de inscrição!", close_modal: "Entendi!", end_tombola_locked: "Atinja 2800 pontos para desbloquear a inscrição!" },
+            "russe (Russie et Europe de l'Est)": { home_sub: "⚡ Брось вызов ИИ и проверь свои знания ! ⚡", label_theme: "Выбери тему", label_lang: "Выбери регион / язык", start_btn: "Начать испытание", rules_title: "Правила игры", how_title: "📝 Как играть?", r1: "30 вопросов от ИИ.", r2: "15 секунд на вопрос.", r3: "100 баллов за правильный ответ.", r4: "Будь быстрым, ИИ не ждет!", prize_title: "🎁 Призы и Награды", prize_txt: "Набери <span class='prize-text'>2800 баллов</span>, чтобы разблокировать золотую кнопку и участвовать в ежемесячном розыгрыше!<br>Выигрывай подарочные карты (Amazon, Netflix) и денежные призы.<br><br><em>Играй, побеждай и доминируй в рейтинге!</em>", start_quiz_btn: "Понятно, в игру!", score_lbl: "Счет:", q_lbl: "Вопрос:", exit_btn: "Выйти", end_title: "Закончено!", final_sub: "Ваш итоговый счет из 30", tombola_btn: "🎁 Участвовать в розыгрыше", restart_btn: "Играть снова", loading: "ИИ готовит ваши 30 вопросов, пожалуйста, подождите...", modal_title: "🎁 Регистрация в розыгрыше", modal_txt: "Участие в розыгрыше обусловлено набором 2800 баллов за одну попытку. Набрать 3000 баллов за раз сложно из-за вопросов ИИ. Вам нужно правильно ответить как минимум на 28 из 30 вопросов, чтобы получить доступ к форме регистрации!", close_modal: "Понятно!", end_tombola_locked: "Наберите 2800 баллов, чтобы разблокировать регистрацию!" },
+            "chinois (Chine et Asie de l'Est)": { home_sub: "⚡ 挑战AI，测试你的常识 ! ⚡", label_theme: "选择主题", label_lang: "选择地区 / 语言", start_btn: "开始挑战", rules_title: "游戏规则", how_title: "📝 怎么玩？", r1: "30个由AI生成的问题。", r2: "每题15秒。", r3: "答对得100分。", r4: "快点，AI不等人！", prize_title: "🎁 奖品与奖励", prize_txt: "达到 <span class='prize-text'>2800分</span> 即可解锁金色按钮并参加每月抽奖！<br>赢得礼品卡（亚马逊、Netflix）和现金奖品。<br><br><em>玩游戏，赢奖品，称霸排行榜！</em>", start_quiz_btn: "明白了，开始游戏！", score_lbl: "得分:", q_lbl: "问题:", exit_btn: "退出", end_title: "结束！", final_sub: "这是你30题的最终得分", tombola_btn: "🎁 参加抽奖", restart_btn: "再玩一次", loading: "AI正在准备您的30个问题，请稍候...", modal_title: "🎁 抽奖注册", modal_txt: "参加抽奖的条件是在单次尝试中达到 2800 分。鉴于AI的问题难度，一次性达到3000分是很困难的。您必须正确回答30个问题中的至少28个才能访问注册表！", close_modal: "明白了！", end_tombola_locked: "达到 2800 分即可解锁注册！" }
+        };
+
+        function updateUILanguage() {
+            const langSelect = document.getElementById('language-select');
+            const selectedLang = langSelect.value;
+            const t = translations[selectedLang] || translations["français (Europe)"]; 
+
+            // Gérer l'arabe (Right to Left)
+            if (selectedLang.includes("arabe")) {
+                document.body.style.direction = "rtl";
+            } else {
+                document.body.style.direction = "ltr";
+            }
+
+            document.getElementById('home-subtitle').innerText = t.home_sub;
+            document.getElementById('label-theme').innerText = t.label_theme;
+            document.getElementById('label-language').innerText = t.label_lang;
+            document.getElementById('start-btn').innerText = t.start_btn;
+            document.getElementById('show-tombola-btn').innerText = t.tombola_btn;
+            
+            document.getElementById('rules-title').innerText = t.rules_title;
+            document.getElementById('rules-how-title').innerText = t.how_title;
+            document.getElementById('rule1').innerText = t.r1;
+            document.getElementById('rule2').innerText = t.r2;
+            document.getElementById('rule3').innerText = t.r3;
+            document.getElementById('rule4').innerText = t.r4;
+            document.getElementById('prize-title').innerText = t.prize_title;
+            document.getElementById('prize-text-content').innerHTML = t.prize_txt; 
+            document.getElementById('start-quiz-btn').innerText = t.start_quiz_btn;
+
+            document.getElementById('score-label').innerHTML = t.score_lbl + ' <span id="score">0</span>';
+            document.getElementById('question-label').innerHTML = t.q_lbl + ' <span id="question-num">1</span>/<span id="total-questions">30</span>';
+            document.getElementById('exit-btn').innerText = t.exit_btn;
+
+            document.getElementById('end-title').innerText = t.end_title;
+            document.getElementById('final-score-subtitle').innerText = t.final_sub;
+            document.getElementById('end-tombola-btn').innerText = t.tombola_btn;
+            document.getElementById('restart-btn').innerText = t.restart_btn;
+
+            // Mettre à jour le modal
+            document.getElementById('modal-title').innerText = t.modal_title;
+            document.getElementById('modal-text').innerText = t.modal_txt;
+            document.getElementById('close-modal-btn').innerText = t.close_modal;
+        }
+
+        window.onload = updateUILanguage;
+
+        // Gérer les popups
+        document.getElementById('show-tombola-btn').addEventListener('click', () => {
+            tombolaModal.classList.add('active');
+        });
+        document.getElementById('close-modal-btn').addEventListener('click', () => {
+            tombolaModal.classList.remove('active');
+        });
 
         document.getElementById('start-btn').addEventListener('click', () => {
             homeScreen.classList.remove('active');
@@ -298,8 +427,10 @@
             rulesScreen.classList.remove('active');
             gameScreen.classList.add('active');
             
+            const t = translations[document.getElementById('language-select').value] || translations["français (Europe)"];
+            
             document.getElementById('question-num').innerText = "1";
-            document.getElementById('question-text').innerText = "L'IA prépare vos 30 questions, patientez...";
+            document.getElementById('question-text').innerText = t.loading;
             document.getElementById('question-text').classList.add('loading-spinner');
             document.getElementById('options-container').innerHTML = '';
 
@@ -314,7 +445,7 @@
                 });
 
                 if (!response.ok) throw new Error('Erreur API');
-                quizQuestions = await response.json(); // On stocke les 30 questions
+                quizQuestions = await response.json(); 
                 
                 currentScore = 0;
                 document.getElementById('score').innerText = currentScore;
@@ -412,13 +543,29 @@
                 } else {
                     endQuiz();
                 }
-            }, 1500); // Plus besoin d'attendre 6 secondes, les questions sont déjà prêtes !
+            }, 1500);
         }
 
         function endQuiz() {
             gameScreen.classList.remove('active');
             endScreen.classList.add('active');
             document.getElementById('final-score').innerText = currentScore;
+
+            // Gérer le bouton Tombola de fin
+            const t = translations[document.getElementById('language-select').value] || translations["français (Europe)"];
+            const endTombolaBtn = document.getElementById('end-tombola-btn');
+            const tombolaMsg = document.getElementById('tombola-msg');
+
+            if (currentScore >= 2800) {
+                endTombolaBtn.href = TOMBOLA_FORM_URL;
+                endTombolaBtn.classList.remove('disabled');
+                endTombolaBtn.target = "_blank";
+                tombolaMsg.innerText = "";
+            } else {
+                endTombolaBtn.href = "#";
+                endTombolaBtn.classList.add('disabled');
+                tombolaMsg.innerText = t.end_tombola_locked;
+            }
         }
     </script>
 </body>
