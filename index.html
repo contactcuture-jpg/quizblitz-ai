@@ -432,6 +432,29 @@
         const tombolaModal = document.getElementById('tombola-modal');
         const adReviveModal = document.getElementById('ad-revive-modal');
 
+        // ==========================================
+        // FONCTION D'INJECTION MONETAG VIGNETTE
+        // ==========================================
+        function triggerMonetagVignette() {
+            try {
+                // 1. Nettoyer les anciens scripts Monetag pour éviter la duplication dans la PWA
+                const oldScripts = document.querySelectorAll('script[src*="vignette.min.js"]');
+                oldScripts.forEach(el => el.remove());
+
+                // 2. Créer et injecter le nouveau script
+                const s = document.createElement('script');
+                s.dataset.zone = '11668298';
+                s.src = 'https://n6wxm.com/vignette.min.js';
+                
+                // Append au body pour exécuter le script
+                document.body.appendChild(s);
+                console.log("Publicité Monetag Vignette injectée.");
+            } catch(e) {
+                console.error("Erreur d'injection Monetag:", e);
+            }
+        }
+        // ==========================================
+
         // Dictionnaire de traduction
         const translations = {
             "français (Europe)": { home_sub: "⚡ Affronte l'IA et teste ta culture générale ! ⚡", label_theme: "Choisis ton Thème", label_lang: "Choisis ta Région / Langue", start_btn: "Lancer le Défi", rules_title: "Règles du Jeu", how_title: "📝 Comment jouer ?", r1: "30 questions difficiles générées par l'IA.", r2: "15 secondes par question.", r3: "1 bonne réponse = 0,33$ virtuel (10$ au total).", r4: "Atteins 10$ (30/30) pour le vrai tirage au sort !", prize_title: "🎁 Gains & Récompenses", prize_txt: "Atteins un score parfait de <span class='prize-text'>10$ (30/30)</span> pour débloquer le bouton d'or et participer au tirage au sort mensuel !<br>Tente de gagner des cartes cadeaux (Amazon, PayPal) et des prix en argent réel.<br><br><em>Joue, gagne, et domine le classement !</em>", start_quiz_btn: "J'ai compris, en jeu !", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quitter", end_title: "Terminé !", final_sub: "Voici ton score final", tombola_btn: "🎁 Participer au tirage au sort", restart_btn: "Rejouer", loading: "L'IA prépare vos 30 questions, patientez...", modal_title: "🎁 Inscription au Tombola", modal_txt: "L'inscription au tombola est conditionnée par l'atteinte d'un score parfait de 10$ (30 réponses correctes sur 30). Tu devras répondre à toutes les questions sans faute pour accéder au formulaire d'inscription !", close_modal: "J'ai compris !", end_tombola_locked: "Atteins 10$ (30/30) pour débloquer l'inscription au tombola !", revive_title: "🎥 Seconde Chance !", revive_txt: "Tu as raté la question ! Regarde une courte publicité pour réessayer cette même question. (Limité à 6 fois par partie).", watch_ad: "▶️ Regarder", skip_ad: "Refuser" },
@@ -519,6 +542,9 @@
             // Cacher la pub interstitielle si elle était restée
             document.getElementById('ad-interstitial').style.display = 'none';
 
+            // INJECTER LA PUB MONETAG PENDANT LE CHARGEMENT DE L'IA
+            triggerMonetagVignette();
+
             const theme = document.getElementById('theme-select').value;
             const language = document.getElementById('language-select').value;
 
@@ -558,8 +584,11 @@
 
         function displayQuestion() {
             // Vérifier si on doit afficher une pub interstitielle
-            if (INTERSTITIAL_QUESTIONS.includes(currentQuestionNum - 1)) {
+            // CORRECTION ICI : on enlève le "-1" pour que ça tombe juste sur 8, 15, 22 et 29
+            if (INTERSTITIAL_QUESTIONS.includes(currentQuestionNum)) {
                 document.getElementById('ad-interstitial').style.display = 'block';
+                // INJECTER LA PUB MONETAG POUR LES QUESTIONS 8, 15, 22, 29
+                triggerMonetagVignette();
             } else {
                 document.getElementById('ad-interstitial').style.display = 'none';
             }
