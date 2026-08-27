@@ -1,3 +1,7 @@
+export const config = {
+  maxDuration: 60, // Autorise Vercel à attendre jusqu'à 60 secondes
+};
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 export default async function handler(req, res) {
@@ -44,6 +48,12 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: `Erreur Gemini: ${data.error?.message || JSON.stringify(data)}` });
     }
 
+    // Sécurité : si l'IA n'a rien renvoyé
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+      console.error('Réponse inattendue de Gemini :', data);
+      return res.status(500).json({ error: 'L\'IA n\'a pas généré de réponse valide.' });
+    }
+
     let rawContent = data.candidates[0].content.parts[0].text;
 
     const startIndex = rawContent.indexOf('[');
@@ -62,3 +72,9 @@ export default async function handler(req, res) {
     }
 
     res.status(200).json(quizData);
+
+  } catch (error) {
+    console.error('Erreur API Gemini:', error);
+    res.status(500).json({ error: `Erreur système: ${error.message}` });
+  }
+}
