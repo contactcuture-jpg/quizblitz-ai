@@ -8,11 +8,8 @@
     <meta name="theme-color" content="#0f172a">
     <script defer src="/_vercel/insights/script.js"></script>
     
-    <!-- ==========================================
-         CODE ADSTERRA (POPUNDER - Arrière-plan)
-         ========================================== -->
+    <!-- ADSTERRA (POPUNDER) -->
     <script src="https://pl31059472.profitableratecpmnetwork.com/70/07/a8/7007a88eb4bf1bd7da4711c47651bd1e.js"></script>
-    <!-- ========================================== -->
 
     <style>
         :root {
@@ -400,16 +397,19 @@
     </div>
 
     <script>
-        const API_URL = '/api/gemini';
+        // Plus besoin de l'API en direct ! On lit le fichier local.
+        // const API_URL = '/api/gemini'; 
+        
         let currentScore = 0;
         let virtualMoney = 0;
         let currentQuestionNum = 1;
         let quizQuestions = []; 
+        let questionsDatabase = null; // Stockera tout le fichier JSON
         let timerInterval;
         let timeLeft = 15;
         let revivesUsed = 0;
         const MAX_REVIVES = 6;
-        const INTERSTITIAL_QUESTIONS = [8, 15, 22, 29]; // Questions où la pub s'affiche
+        const INTERSTITIAL_QUESTIONS = [8, 15, 22, 29];
 
         // Lien de ton formulaire Google Forms
         const TOMBOLA_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc9HWBwJYWBoRNsdOdV7MkJIzBvCk6-NbPWlFQ34cPy7P9AdQ/viewform?usp=dialog";
@@ -436,14 +436,24 @@
                 s.setAttribute('data-cfasync', 'false');
                 
                 document.body.appendChild(s);
-                console.log("Publicité Monetag Multitag injectée.");
             } catch(e) {
                 console.error("Erreur Monetag:", e);
             }
         }
-        // ==========================================
 
-        // Dictionnaire de traduction (Ajout de la clé 'api_error_quota')
+        // Charger la base de données de questions dès le démarrage
+        async function loadQuestionsDatabase() {
+            try {
+                const response = await fetch('/questions.json');
+                questionsDatabase = await response.json();
+                console.log("Base de données de questions chargée avec succès.");
+            } catch (error) {
+                console.error("Erreur lors du chargement de questions.json:", error);
+            }
+        }
+        loadQuestionsDatabase(); // Appelé au chargement de la page
+
+        // Dictionnaire de traduction 
         const translations = {
             "français (Europe)": { home_sub: "⚡ Affronte l'IA et teste ta culture générale ! ⚡", label_theme: "Choisis ton Thème", label_lang: "Choisis ta Région / Langue", start_btn: "Lancer le Défi", rules_title: "Règles du Jeu", how_title: "📝 Comment jouer ?", r1: "30 questions difficiles générées par l'IA.", r2: "15 secondes par question.", r3: "1 bonne réponse = 0,33$ virtuel (10$ au total).", r4: "Atteins 10$ (30/30) pour le vrai tirage au sort !", prize_title: "🎁 Gains & Récompenses", prize_txt: "Atteins un score parfait de <span class='prize-text'>10$ (30/30)</span> pour débloquer le bouton d'or et participer au tirage au sort mensuel !<br>Tente de gagner des cartes cadeaux (Amazon, PayPal) et des prix en argent réel.<br><br><em>Joue, gagne, et domine le classement !</em>", start_quiz_btn: "J'ai compris, en jeu !", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quitter", end_title: "Terminé !", final_sub: "Voici ton score final", tombola_btn: "🎁 Participer au tirage au sort", restart_btn: "Rejouer", loading: "L'IA prépare vos 30 questions, patientez...", api_error_quota: "L'IA est très sollicitée par d'autres joueurs en ce moment. Réessaie dans 1 minute !", modal_title: "🎁 Inscription au Tombola", modal_txt: "L'inscription au tombola est conditionnée par l'atteinte d'un score parfait de 10$ (30 réponses correctes sur 30). Tu devras répondre à toutes les questions sans faute pour accéder au formulaire d'inscription !", close_modal: "J'ai compris !", end_tombola_locked: "Atteins 10$ (30/30) pour débloquer l'inscription au tombola !", revive_title: "🎥 Seconde Chance !", revive_txt: "Tu as raté la question ! Regarde une courte publicité pour réessayer cette même question. (Limité à 6 fois par partie).", watch_ad: "▶️ Regarder", skip_ad: "Refuser" },
             "anglais (International)": { home_sub: "⚡ Face the AI and test your general knowledge ! ⚡", label_theme: "Choose your Theme", label_lang: "Choose your Region / Language", start_btn: "Start Challenge", rules_title: "Game Rules", how_title: "📝 How to play?", r1: "30 hard AI-generated questions.", r2: "15 seconds per question.", r3: "1 correct answer = $0.33 virtual ($10 total).", r4: "Reach $10 (30/30) for the real raffle!", prize_title: "🎁 Prizes & Rewards", prize_txt: "Reach a perfect score of <span class='prize-text'>$10 (30/30)</span> to unlock the golden button and enter the monthly raffle !<br>Win gift cards (Amazon, PayPal) and real cash prizes.<br><br><em>Play, win, and rule the leaderboard!</em>", start_quiz_btn: "Got it, let's play!", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quit", end_title: "Finished!", final_sub: "Here is your final score", tombola_btn: "🎁 Enter the raffle", restart_btn: "Play Again", loading: "The AI is preparing your 30 questions, please wait...", api_error_quota: "The AI is very busy with other players right now. Please try again in 1 minute!", modal_title: "🎁 Raffle Registration", modal_txt: "Registration for the raffle is conditional upon reaching a perfect score of $10 (30 out of 30 correct answers). You must answer all questions flawlessly to access the registration form!", close_modal: "Got it!", end_tombola_locked: "Reach $10 (30/30) to unlock raffle registration!", revive_title: "🎥 Second Chance!", revive_txt: "You missed the question! Watch a short ad to retry this same question. (Limited to 6 times per game).", watch_ad: "▶️ Watch", skip_ad: "Skip" },
@@ -532,33 +542,30 @@
             const language = document.getElementById('language-select').value;
 
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ theme, language })
-                });
-
-                const data = await response.json();
-
-                // Gestion propre des erreurs de l'API (notamment le quota Gemini)
-                if (!response.ok || data.error) {
-                    if (data.error && data.error.toLowerCase().includes('quota')) {
-                        throw new Error('QUOTA_EXCEEDED');
-                    }
-                    throw new Error('GENERIC_ERROR');
+                // Vérifier que la base de données est bien chargée
+                if (!questionsDatabase || !questionsDatabase[language] || !questionsDatabase[language][theme]) {
+                    throw new Error('DATABASE_ERROR');
                 }
 
-                quizQuestions = data; 
-                displayQuestion();
+                // Récupérer toutes les questions disponibles pour ce thème/langue
+                const availableQuestions = questionsDatabase[language][theme];
+                
+                // Mélanger les questions et en prendre 30 au hasard
+                const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+                quizQuestions = shuffled.slice(0, 30);
+
+                // Si le joueur relance plusieurs fois, on s'assure qu'il n'y a pas de bug si on n'a pas assez de questions
+                if(quizQuestions.length === 0) throw new Error('DATABASE_ERROR');
+
+                // Petite pause factice de 2 secondes pour laisser la pub s'afficher
+                setTimeout(() => {
+                    displayQuestion();
+                }, 2000);
+
             } catch (error) {
                 const questionText = document.getElementById('question-text');
                 questionText.classList.remove('loading-spinner');
-                
-                if (error.message === 'QUOTA_EXCEEDED') {
-                    questionText.innerText = t.api_error_quota;
-                } else {
-                    questionText.innerText = "Erreur de connexion. Réessaie.";
-                }
+                questionText.innerText = "Erreur de chargement des questions. Réessaie.";
             }
         });
         
@@ -578,7 +585,6 @@
         }
 
         function displayQuestion() {
-            // Vérifier si on doit afficher une pub interstitielle
             if (INTERSTITIAL_QUESTIONS.includes(currentQuestionNum)) {
                 triggerMonetagAd();
             }
@@ -617,7 +623,7 @@
                 timeLeft--;
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    selectAnswer(-1, -1, null); // Temps écoulé = mauvaise réponse
+                    selectAnswer(-1, -1, null);
                 }
             }, 1000);
         }
@@ -633,15 +639,12 @@
                 clickedBtn.classList.add('correct');
                 currentScore += 1; 
                 
-                // Calcul de l'argent
                 virtualMoney = currentScore * 0.33;
                 if (currentScore === 30) virtualMoney = 10.00;
                 
-                // Mise à jour IMMÉDIATE du DOM
                 document.getElementById('score').textContent = currentScore;
                 document.getElementById('virtual-money').textContent = virtualMoney.toFixed(2) + "$";
                 
-                // Petit effet visuel sur le compteur
                 const moneyDisplay = document.getElementById('money-display');
                 moneyDisplay.classList.add('pulse');
                 setTimeout(() => moneyDisplay.classList.remove('pulse'), 200);
@@ -651,7 +654,6 @@
                 if (selectedIndex !== -1) clickedBtn.classList.add('wrong');
                 if (buttons[correctIndex]) buttons[correctIndex].classList.add('correct');
 
-                // Vérifier si le joueur a encore des "Revives"
                 if (revivesUsed < MAX_REVIVES) {
                     adReviveModal.classList.add('active');
                 } else {
@@ -664,15 +666,13 @@
             adReviveModal.classList.remove('active');
             revivesUsed++;
             
-            // Déclencher la pub Monetag quand on clique sur "Regarder"
             triggerMonetagAd();
 
-            // Réinitialiser la question après un court délai pour laisser la pub s'afficher
             setTimeout(() => {
                 const buttons = document.querySelectorAll('.option-btn');
                 buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
                 startTimer();
-            }, 1000); // Délai de 1 seconde
+            }, 1000);
         });
 
         document.getElementById('skip-ad-btn').addEventListener('click', () => {
@@ -701,15 +701,12 @@
             const endTombolaBtn = document.getElementById('end-tombola-btn');
             const tombolaMsg = document.getElementById('tombola-msg');
 
-            // Logique de fin simple : 30/30 ou pas
             if (currentScore >= 30) {
-                // Gagnant ! Tombola gratuit
                 endTombolaBtn.href = TOMBOLA_FORM_URL;
                 endTombolaBtn.classList.remove('disabled');
                 endTombolaBtn.target = "_blank";
                 tombolaMsg.innerText = "";
             } else {
-                // Perdu
                 endTombolaBtn.href = "#";
                 endTombolaBtn.classList.add('disabled');
                 tombolaMsg.innerText = t.end_tombola_locked;
