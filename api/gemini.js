@@ -12,7 +12,9 @@ export default async function handler(req, res) {
 
     const prompt = `Tu es un générateur de quiz expert. Génère 30 questions de quiz difficiles sur le thème: "${theme}". La langue de sortie doit être: "${language}".
     
-    INSTRUCTION CRUCIALE ANTI-TRICHE : Pour empêcher les joueurs de tricher en utilisant une IA externe (comme ChatGPT) pour répondre à leurs captures d'écran, tu DOIS inclure EXACTEMENT UNE question "piège" parmi les 30. Cette question piège doit être conçue pour qu'aucune IA ne puisse la deviner correctement (par exemple : une question avec une prémisse historique fausse, ou une question absurde où la "bonne" réponse est en réalité un fait inventé mais qui semble plausible). L'objectif est qu'il soit strictement impossible pour quiconque d'obtenir un score de 30/30.
+    INSTRUCTION CRUCIALE ANTI-TRICHE : Parmi les 30 questions, tu DOIS en inclure EXACTEMENT UNE qui est un "piège". Cette question doit sembler tout à fait normale, mais sa réponse doit être impossible à deviner pour quiconque (par exemple : un événement historique inventé de toutes pièces mais qui a l'air vrai, ou un fait scientifique absurde mais plausible). L'objectif est qu'il soit strictement impossible d'obtenir un score de 30/30.
+    
+    RÈGLE ABSOLUE : Ne mentionne JAMAIS le mot "piège", "piégée" ou tout autre indice dans le texte de la question. La question doit avoir EXACTEMENT le même format et le même ton que les 29 autres questions.
     
     Réponds UNIQUEMENT avec un objet JSON valide formaté comme ceci: {"questions": [{"question": "Texte", "options": ["A", "B", "C", "D"], "correct_index": 0}]}`;
 
