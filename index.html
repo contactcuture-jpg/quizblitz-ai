@@ -353,12 +353,17 @@
         document.getElementById('watch-ad-btn').addEventListener('click', () => {
             adReviveModal.classList.remove('active');
             revivesUsed++;
-            // La pub vidéo sera gérée ici plus tard avec un format non-intrusif
+            
+            // Simulation visuelle d'une publicité en cours
+            const questionText = document.getElementById('question-text');
+            questionText.classList.add('loading-spinner');
+            questionText.innerText = "Publicité en cours... Veuillez patienter.";
+            document.getElementById('options-container').innerHTML = '';
+
+            // Après 2.5 secondes, on réaffiche la même question
             setTimeout(() => {
-                const buttons = document.querySelectorAll('.option-btn');
-                buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
-                startTimer();
-            }, 1000);
+                displayQuestion();
+            }, 2500);
         });
 
         document.getElementById('skip-ad-btn').addEventListener('click', () => { adReviveModal.classList.remove('active'); nextQuestion(); });
