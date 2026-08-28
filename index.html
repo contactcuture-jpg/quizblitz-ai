@@ -124,22 +124,27 @@
         .modal-box .btn-secondary { background: transparent; border: 1px solid #64748b; color: #94a3b8; box-shadow: none; }
         .ad-slot { display: none; }
 
-        /* CSS pour la surcouche Pub Interstitielle Personnalisée */
+        /* CSS pour la surcouche Pub Interstitielle Personnalisée (Sécurité Mobile) */
         #custom-ad-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 200; flex-direction: column;
+            background: rgba(0,0,0,0.95); z-index: 2147483647 !important; flex-direction: column;
             justify-content: center; align-items: center; padding: 20px; text-align: center;
+            overflow: hidden; /* Empêche la pub de déborder */
         }
         #custom-ad-overlay.active { display: flex; }
         #ad-container-wrapper {
             background: #fff; padding: 15px; border-radius: 10px; max-width: 320px; width: 100%;
             margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            overflow: hidden; height: 250px; /* Force la pub à rester dans ce cadre */
         }
         #close-ad-btn {
-            margin-top: 10px; background: var(--success-color); color: var(--bg-dark);
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); /* Place le bouton tout en bas, hors de la zone de pub */
+            margin-top: 0; background: var(--success-color); color: var(--bg-dark);
             width: auto; padding: 12px 30px; margin-bottom: 0; font-size: 16px;
+            z-index: 2147483648 !important; /* Toujours au-dessus de tout */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        #close-ad-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; transform: none; }
+        #close-ad-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; transform: translateX(-50%); }
         .ad-label { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
     </style>
 </head>
@@ -151,7 +156,8 @@
         <div id="ad-container-wrapper">
             <div id="container-5262bca8cf7144a4c115fe28ae2d7644"></div>
         </div>
-        <button id="close-ad-btn" disabled>Continuer le jeu ▶</button>
+        <!-- Le bouton est sorti du wrapper pour être toujours cliquable -->
+        <button id="close-ad-btn" disabled>Patientez 3s...</button>
     </div>
 
     <!-- ADSTERRA NATIVE BANNER SCRIPT -->
@@ -164,7 +170,7 @@
             <p class="subtitle" id="home-subtitle">⚡ Affronte l'IA et teste ta culture générale ! ⚡</p>
             <label for="theme-select" id="label-theme">Choisis ton Thème</label>
             <select id="theme-select"><option value="Culture Générale">Culture Générale</option><option value="Sport">Sport</option><option value="Histoire">Histoire</option><option value="Sciences">Sciences</option><option value="Géographie">Géographie</option></select>
-            <label for="language-select" id="label-language">Choisis ta Région / Langue</label>
+            <label for="language-select" id="language-select-label">Choisis ta Région / Langue</label>
             <select id="language-select" onchange="updateUILanguage()"><option value="français (Europe)">🇫🇷 Français (Europe)</option><option value="anglais (International)">🇬🇧 Anglais (International)</option><option value="arabe (MENA)">🇸🇦 Arabe (MENA)</option><option value="espagnol (Espagne et Amérique Latine)">🇪🇸 Espagnol (Latino)</option><option value="portugais (Brésil et Portugal)">🇵🇹 Portugais (BR/PT)</option><option value="russe (Russie et Europe de l'Est)">🇷🇺 Russe (Russie/EE)</option><option value="chinois (Chine et Asie de l'Est)">🇨🇳 Chinois (Asie)</option></select>
             <button id="show-tombola-btn" class="tombola-btn">🎁 Participer au tirage au sort</button>
             <button id="start-btn">Lancer le Défi</button>
@@ -259,6 +265,7 @@
             overlay.classList.add('active');
             closeBtn.disabled = true;
             closeBtn.innerText = "Patientez 3s...";
+            closeBtn.style.display = 'block'; // Assurez-vous qu'il est visible
 
             // Forcer le joueur à regarder la pub 3 secondes avant de pouvoir cliquer
             setTimeout(() => {
@@ -289,7 +296,7 @@
             if (document.getElementById('language-select').value.includes("arabe")) document.body.style.direction = "rtl"; else document.body.style.direction = "ltr";
             document.getElementById('home-subtitle').innerText = t.home_sub;
             document.getElementById('label-theme').innerText = t.label_theme;
-            document.getElementById('label-language').innerText = t.label_lang;
+            document.getElementById('language-select-label').innerText = t.label_lang;
             document.getElementById('start-btn').innerText = t.start_btn;
             document.getElementById('show-tombola-btn').innerText = t.tombola_btn;
             document.getElementById('rules-title').innerText = t.rules_title;
