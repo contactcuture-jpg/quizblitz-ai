@@ -7,9 +7,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
     <script defer src="/_vercel/insights/script.js"></script>
-    
-    <!-- ADSTERRA (POPUNDER) -->
-    <script src="https://pl31059472.profitableratecpmnetwork.com/70/07/a8/7007a88eb4bf1bd7da4711c47651bd1e.js"></script>
 
     <style>
         :root {
@@ -196,7 +193,7 @@
     </div>
 
     <script>
-        const API_URL = '/api/gemini'; // On retourne à l'API en direct !
+        const API_URL = '/api/gemini'; 
         let currentScore = 0, virtualMoney = 0, currentQuestionNum = 1, quizQuestions = [], timerInterval, timeLeft = 15, revivesUsed = 0;
         const MAX_REVIVES = 6, INTERSTITIAL_QUESTIONS = [8, 15, 22, 29];
         const TOMBOLA_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc9HWBwJYWBoRNsdOdV7MkJIzBvCk6-NbPWlFQ34cPy7P9AdQ/viewform?usp=dialog";
@@ -207,17 +204,6 @@
         const endScreen = document.getElementById('end-screen');
         const tombolaModal = document.getElementById('tombola-modal');
         const adReviveModal = document.getElementById('ad-revive-modal');
-
-        function triggerMonetagAd() {
-            try {
-                const oldScripts = document.querySelectorAll('script[src*="quge5.com"]');
-                oldScripts.forEach(el => el.remove());
-                const s = document.createElement('script');
-                s.src = 'https://quge5.com/88/tag.min.js'; s.setAttribute('data-zone', '273787');
-                s.async = true; s.setAttribute('data-cfasync', 'false');
-                document.body.appendChild(s);
-            } catch(e) {}
-        }
 
         const translations = {
             "français (Europe)": { home_sub: "⚡ Affronte l'IA et teste ta culture générale ! ⚡", label_theme: "Choisis ton Thème", label_lang: "Choisis ta Région / Langue", start_btn: "Lancer le Défi", rules_title: "Règles du Jeu", how_title: "📝 Comment jouer ?", r1: "30 questions difficiles générées par l'IA.", r2: "15 secondes par question.", r3: "1 bonne réponse = 0,33$ virtuel (10$ au total).", r4: "Atteins 10$ (30/30) pour le vrai tirage au sort !", prize_title: "🎁 Gains & Récompenses", prize_txt: "Atteins un score parfait de <span class='prize-text'>10$ (30/30)</span> pour débloquer le bouton d'or et participer au tirage au sort mensuel !<br>Tente de gagner des cartes cadeaux (Amazon, PayPal) et des prix en argent réel.<br><br><em>Joue, gagne, et domine le classement !</em>", start_quiz_btn: "J'ai compris, en jeu !", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quitter", end_title: "Terminé !", final_sub: "Voici ton score final", tombola_btn: "🎁 Participer au tirage au sort", restart_btn: "Rejouer", loading: "L'IA prépare vos 30 questions, patientez...", api_error_quota: "L'IA est très sollicitée par d'autres joueurs en ce moment. Réessaie dans 1 minute !", modal_title: "🎁 Inscription au Tombola", modal_txt: "L'inscription au tombola est conditionnée par l'atteinte d'un score parfait de 10$ (30 réponses correctes sur 30). Tu devras répondre à toutes les questions sans faute pour accéder au formulaire d'inscription !", close_modal: "J'ai compris !", end_tombola_locked: "Atteins 10$ (30/30) pour débloquer l'inscription au tombola !", revive_title: "🎥 Seconde Chance !", revive_txt: "Tu as raté la question ! Regarde une courte publicité pour réessayer cette même question. (Limité à 6 fois par partie).", watch_ad: "▶️ Regarder", skip_ad: "Refuser" },
@@ -280,7 +266,6 @@
             document.getElementById('question-text').innerText = t.loading;
             document.getElementById('question-text').classList.add('loading-spinner');
             document.getElementById('options-container').innerHTML = '';
-            triggerMonetagAd();
 
             try {
                 const response = await fetch(API_URL, {
@@ -311,7 +296,6 @@
         }
 
         function displayQuestion() {
-            if (INTERSTITIAL_QUESTIONS.includes(currentQuestionNum)) triggerMonetagAd();
             const q = quizQuestions[currentQuestionNum - 1];
             document.getElementById('question-num').innerText = currentQuestionNum;
             document.getElementById('question-text').classList.remove('loading-spinner');
@@ -368,7 +352,7 @@
         document.getElementById('watch-ad-btn').addEventListener('click', () => {
             adReviveModal.classList.remove('active');
             revivesUsed++;
-            triggerMonetagAd();
+            // La pub vidéo sera gérée ici plus tard avec un format non-intrusif
             setTimeout(() => {
                 const buttons = document.querySelectorAll('.option-btn');
                 buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
