@@ -115,6 +115,16 @@
         .tombola-btn:hover { box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5) !important; }
         .btn-purple { background: linear-gradient(45deg, #9333ea, #db2777) !important; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3) !important; color: white !important; }
         .disabled { background: #334155 !important; color: #64748b !important; box-shadow: none !important; border-color: #475569 !important; pointer-events: none; }
+        
+        /* Style pour le bouton Partager */
+        .share-btn {
+            background: transparent !important;
+            border: 2px solid var(--primary-color) !important;
+            color: var(--primary-color) !important;
+            box-shadow: none !important;
+            margin-bottom: 15px;
+        }
+        .share-btn:hover { background: rgba(0, 242, 255, 0.1) !important; transform: none !important; box-shadow: none !important; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
@@ -129,19 +139,19 @@
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 2147483647 !important; flex-direction: column;
             justify-content: center; align-items: center; padding: 20px; text-align: center;
-            overflow: hidden; /* Empêche la pub de déborder */
+            overflow: hidden; 
         }
         #custom-ad-overlay.active { display: flex; }
         #ad-container-wrapper {
             background: #fff; padding: 15px; border-radius: 10px; max-width: 320px; width: 100%;
             margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            overflow: hidden; height: 250px; /* Force la pub à rester dans ce cadre */
+            overflow: hidden; height: 250px;
         }
         #close-ad-btn {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); /* Place le bouton tout en bas, hors de la zone de pub */
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
             margin-top: 0; background: var(--success-color); color: var(--bg-dark);
             width: auto; padding: 12px 30px; margin-bottom: 0; font-size: 16px;
-            z-index: 2147483648 !important; /* Toujours au-dessus de tout */
+            z-index: 2147483648 !important; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         #close-ad-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; transform: translateX(-50%); }
@@ -156,7 +166,6 @@
         <div id="ad-container-wrapper">
             <div id="container-5262bca8cf7144a4c115fe28ae2d7644"></div>
         </div>
-        <!-- Le bouton est sorti du wrapper pour être toujours cliquable -->
         <button id="close-ad-btn" disabled>Patientez 3s...</button>
     </div>
 
@@ -174,6 +183,7 @@
             <select id="language-select" onchange="updateUILanguage()"><option value="français (Europe)">🇫🇷 Français (Europe)</option><option value="anglais (International)">🇬🇧 Anglais (International)</option><option value="arabe (MENA)">🇸🇦 Arabe (MENA)</option><option value="espagnol (Espagne et Amérique Latine)">🇪🇸 Espagnol (Latino)</option><option value="portugais (Brésil et Portugal)">🇵🇹 Portugais (BR/PT)</option><option value="russe (Russie et Europe de l'Est)">🇷🇺 Russe (Russie/EE)</option><option value="chinois (Chine et Asie de l'Est)">🇨🇳 Chinois (Asie)</option></select>
             <button id="show-tombola-btn" class="tombola-btn">🎁 Participer au tirage au sort</button>
             <button id="start-btn">Lancer le Défi</button>
+            <button id="share-home-btn" class="share-btn">🔗 Partager le jeu</button>
         </div>
 
         <div id="rules-screen" class="screen">
@@ -220,6 +230,7 @@
             <a href="#" target="_blank" class="tombola-btn disabled" id="end-tombola-btn">🎁 Participer au tirage au sort</a>
             <p id="tombola-msg" style="text-align:center; font-size:13px; color:#94a3b8; margin-bottom:20px;"></p>
             <button id="restart-btn">Rejouer</button>
+            <button id="share-end-btn" class="share-btn">🔗 Défier tes amis !</button>
         </div>
 
         <div id="tombola-modal" class="modal-overlay">
@@ -256,6 +267,28 @@
         const adReviveModal = document.getElementById('ad-revive-modal');
 
         // ==========================================
+        // FONCTION DE PARTAGE NATIF (MOBILE & PC)
+        // ==========================================
+        function shareGame() {
+            const shareText = "🧠 Es-tu plus fort qu'une Intelligence Artificielle ? ⚡\nJoue à QuizBlitz AI, défie l'IA et tente de gagner des cartes cadeaux (Amazon, PayPal) !\n👉 https://quizblitz-game.vercel.app";
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'QuizBlitz AI ⚡',
+                    text: shareText,
+                    url: 'https://quizblitz-game.vercel.app'
+                }).catch(err => console.log('Partage annulé'));
+            } else {
+                // Si le navigateur ne supporte pas le partage natif (ex: PC), on copie le lien
+                navigator.clipboard.writeText(shareText);
+                alert("Lien copié ! Partage-le avec tes amis.");
+            }
+        }
+        document.getElementById('share-home-btn').addEventListener('click', shareGame);
+        document.getElementById('share-end-btn').addEventListener('click', shareGame);
+        // ==========================================
+
+        // ==========================================
         // FONCTION POUR AFFICHER LA VRAIE PUB PLEIN ÉCRAN
         // ==========================================
         function showCustomAd(callback) {
@@ -265,15 +298,13 @@
             overlay.classList.add('active');
             closeBtn.disabled = true;
             closeBtn.innerText = "Patientez 3s...";
-            closeBtn.style.display = 'block'; // Assurez-vous qu'il est visible
+            closeBtn.style.display = 'block';
 
-            // Forcer le joueur à regarder la pub 3 secondes avant de pouvoir cliquer
             setTimeout(() => {
                 closeBtn.disabled = false;
                 closeBtn.innerText = "Continuer le jeu ▶";
             }, 3000);
 
-            // Quand le joueur clique pour fermer
             closeBtn.onclick = () => {
                 overlay.classList.remove('active');
                 if (typeof callback === 'function') callback();
@@ -343,7 +374,6 @@
             document.getElementById('question-text').classList.add('loading-spinner');
             document.getElementById('options-container').innerHTML = '';
 
-            // ON LANCE LA VRAIE PUB PLEIN ÉCRAN, PUIS ON CHARGE L'IA
             showCustomAd(async () => {
                 try {
                     const response = await fetch(API_URL, {
@@ -432,7 +462,6 @@
             adReviveModal.classList.remove('active');
             revivesUsed++;
             
-            // ON LANCE LA VRAIE PUB, PUIS ON RELANCE LA QUESTION
             showCustomAd(() => {
                 const buttons = document.querySelectorAll('.option-btn');
                 buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
