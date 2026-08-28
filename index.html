@@ -111,11 +111,42 @@
         .modal-box p { font-size: 15px; line-height: 1.5; margin-bottom: 25px; color: #e2e8f0; }
         .modal-box .btn-secondary { background: transparent; border: 1px solid #64748b; color: #94a3b8; box-shadow: none; }
         .ad-slot { display: none; }
+
+        /* CSS pour la surcouche Pub Interstitielle Personnalisée */
+        #custom-ad-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 200; flex-direction: column;
+            justify-content: center; align-items: center; padding: 20px; text-align: center;
+        }
+        #custom-ad-overlay.active { display: flex; }
+        #ad-container-wrapper {
+            background: #fff; padding: 15px; border-radius: 10px; max-width: 320px; width: 100%;
+            margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        #close-ad-btn {
+            margin-top: 10px; background: var(--success-color); color: var(--bg-dark);
+            width: auto; padding: 12px 30px; margin-bottom: 0; font-size: 16px;
+        }
+        #close-ad-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; transform: none; }
+        .ad-label { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
+    <!-- SURCOUCHE PUB PLEIN ÉCRAN -->
+    <div id="custom-ad-overlay">
+        <div class="ad-label">Publicité</div>
+        <div id="ad-container-wrapper">
+            <div id="container-5262bca8cf7144a4c115fe28ae2d7644"></div>
+        </div>
+        <button id="close-ad-btn" disabled>Continuer le jeu ▶</button>
+    </div>
+
+    <!-- ADSTERRA NATIVE BANNER SCRIPT -->
+    <script async="async" data-cfasync="false" src="https://pl31070862.profitableratecpmnetwork.com/5262bca8cf7144a4c115fe28ae2d7644/invoke.js"></script>
+
     <div class="app-container">
+        <!-- ACCUEIL -->
         <div id="home-screen" class="screen active">
             <h1>QuizBlitz AI</h1>
             <p class="subtitle" id="home-subtitle">⚡ Affronte l'IA et teste ta culture générale ! ⚡</p>
@@ -196,7 +227,7 @@
     <script>
         const API_URL = '/api/gemini'; 
         let currentScore = 0, virtualMoney = 0, currentQuestionNum = 1, quizQuestions = [], timerInterval, timeLeft = 15, revivesUsed = 0;
-        const MAX_REVIVES = 6, INTERSTITIAL_QUESTIONS = [8, 15, 22, 29];
+        const MAX_REVIVES = 6;
         const TOMBOLA_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc9HWBwJYWBoRNsdOdV7MkJIzBvCk6-NbPWlFQ34cPy7P9AdQ/viewform?usp=dialog";
 
         const homeScreen = document.getElementById('home-screen');
@@ -205,6 +236,31 @@
         const endScreen = document.getElementById('end-screen');
         const tombolaModal = document.getElementById('tombola-modal');
         const adReviveModal = document.getElementById('ad-revive-modal');
+
+        // ==========================================
+        // FONCTION POUR AFFICHER LA VRAIE PUB PLEIN ÉCRAN
+        // ==========================================
+        function showCustomAd(callback) {
+            const overlay = document.getElementById('custom-ad-overlay');
+            const closeBtn = document.getElementById('close-ad-btn');
+            
+            overlay.classList.add('active');
+            closeBtn.disabled = true;
+            closeBtn.innerText = "Patientez 3s...";
+
+            // Forcer le joueur à regarder la pub 3 secondes avant de pouvoir cliquer
+            setTimeout(() => {
+                closeBtn.disabled = false;
+                closeBtn.innerText = "Continuer le jeu ▶";
+            }, 3000);
+
+            // Quand le joueur clique pour fermer
+            closeBtn.onclick = () => {
+                overlay.classList.remove('active');
+                if (typeof callback === 'function') callback();
+            };
+        }
+        // ==========================================
 
         const translations = {
             "français (Europe)": { home_sub: "⚡ Affronte l'IA et teste ta culture générale ! ⚡", label_theme: "Choisis ton Thème", label_lang: "Choisis ta Région / Langue", start_btn: "Lancer le Défi", rules_title: "Règles du Jeu", how_title: "📝 Comment jouer ?", r1: "30 questions difficiles générées par l'IA.", r2: "15 secondes par question.", r3: "1 bonne réponse = 0,33$ virtuel (10$ au total).", r4: "Atteins 10$ (30/30) pour le vrai tirage au sort !", prize_title: "🎁 Gains & Récompenses", prize_txt: "Atteins un score parfait de <span class='prize-text'>10$ (30/30)</span> pour débloquer le bouton d'or et participer au tirage au sort mensuel !<br>Tente de gagner des cartes cadeaux (Amazon, PayPal) et des prix en argent réel.<br><br><em>Joue, gagne, et domine le classement !</em>", start_quiz_btn: "J'ai compris, en jeu !", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quitter", end_title: "Terminé !", final_sub: "Voici ton score final", tombola_btn: "🎁 Participer au tirage au sort", restart_btn: "Rejouer", loading: "L'IA prépare vos 30 questions, patientez...", api_error_quota: "L'IA est très sollicitée par d'autres joueurs en ce moment. Réessaie dans 1 minute !", modal_title: "🎁 Inscription au Tombola", modal_txt: "L'inscription au tombola est conditionnée par l'atteinte d'un score parfait de 10$ (30 réponses correctes sur 30). Tu devras répondre à toutes les questions sans faute pour accéder au formulaire d'inscription !", close_modal: "J'ai compris !", end_tombola_locked: "Atteins 10$ (30/30) pour débloquer l'inscription au tombola !", revive_title: "🎥 Seconde Chance !", revive_txt: "Tu as raté la question ! Regarde une courte publicité pour réessayer cette même question. (Limité à 6 fois par partie).", watch_ad: "▶️ Regarder", skip_ad: "Refuser" },
@@ -268,21 +324,24 @@
             document.getElementById('question-text').classList.add('loading-spinner');
             document.getElementById('options-container').innerHTML = '';
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ theme: document.getElementById('theme-select').value, language: document.getElementById('language-select').value })
-                });
-                const data = await response.json();
-                if (!response.ok || data.error) throw new Error('API_ERROR');
-                quizQuestions = data; 
-                displayQuestion();
-            } catch (error) {
-                const questionText = document.getElementById('question-text');
-                questionText.classList.remove('loading-spinner');
-                questionText.innerText = "Erreur de connexion ou l'IA est surchargée. Réessaie.";
-            }
+            // ON LANCE LA VRAIE PUB PLEIN ÉCRAN, PUIS ON CHARGE L'IA
+            showCustomAd(async () => {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ theme: document.getElementById('theme-select').value, language: document.getElementById('language-select').value })
+                    });
+                    const data = await response.json();
+                    if (!response.ok || data.error) throw new Error('API_ERROR');
+                    quizQuestions = data; 
+                    displayQuestion();
+                } catch (error) {
+                    const questionText = document.getElementById('question-text');
+                    questionText.classList.remove('loading-spinner');
+                    questionText.innerText = "Erreur de connexion ou l'IA est surchargée. Réessaie.";
+                }
+            });
         });
         
         document.getElementById('exit-btn').addEventListener('click', resetGame);
@@ -354,16 +413,12 @@
             adReviveModal.classList.remove('active');
             revivesUsed++;
             
-            // Simulation visuelle d'une publicité en cours
-            const questionText = document.getElementById('question-text');
-            questionText.classList.add('loading-spinner');
-            questionText.innerText = "Publicité en cours... Veuillez patienter.";
-            document.getElementById('options-container').innerHTML = '';
-
-            // Après 2.5 secondes, on réaffiche la même question
-            setTimeout(() => {
-                displayQuestion();
-            }, 2500);
+            // ON LANCE LA VRAIE PUB, PUIS ON RELANCE LA QUESTION
+            showCustomAd(() => {
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
+                startTimer();
+            });
         });
 
         document.getElementById('skip-ad-btn').addEventListener('click', () => { adReviveModal.classList.remove('active'); nextQuestion(); });
