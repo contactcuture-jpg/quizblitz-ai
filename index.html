@@ -24,296 +24,109 @@
             --money-color: #00ff88;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Roboto, sans-serif; }
 
         body {
             background-color: var(--bg-dark);
             background-image: radial-gradient(circle at 50% 0%, rgba(0, 242, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(255, 0, 85, 0.1) 0%, transparent 50%);
             color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
 
         .app-container {
-            width: 100%;
-            max-width: 500px;
-            background-color: var(--card-bg);
-            backdrop-filter: blur(12px);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            width: 100%; max-width: 500px; background-color: var(--card-bg); backdrop-filter: blur(12px);
+            min-height: 100vh; display: flex; flex-direction: column;
             box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
-            border-left: 1px solid rgba(255,255,255,0.1);
-            border-right: 1px solid rgba(255,255,255,0.1);
+            border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1);
             position: relative;
         }
 
-        .screen {
-            display: none;
-            flex-direction: column;
-            flex-grow: 1;
-            padding: 25px;
-            justify-content: center;
-        }
-
+        .screen { display: none; flex-direction: column; flex-grow: 1; padding: 25px; justify-content: center; }
         .screen.active { display: flex; }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 42px;
-            font-weight: 800;
-            text-transform: uppercase;
+        h1 { text-align: center; margin-bottom: 10px; font-size: 42px; font-weight: 800; text-transform: uppercase;
             background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
         }
 
         p.subtitle { text-align: center; margin-bottom: 30px; color: #94a3b8; font-size: 16px; }
-
         label { display: block; margin-bottom: 10px; font-weight: bold; color: var(--primary-color); text-transform: uppercase; font-size: 14px; }
 
         select, button {
-            width: 100%;
-            padding: 16px;
-            margin-bottom: 25px;
-            border-radius: 12px;
-            border: 2px solid transparent;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-weight: bold;
+            width: 100%; padding: 16px; margin-bottom: 25px; border-radius: 12px; border: 2px solid transparent;
+            font-size: 16px; cursor: pointer; transition: 0.2s; font-weight: bold;
         }
 
-        select {
-            background-color: #1e293b;
-            color: var(--text-color);
-            border: 2px solid #334155;
-            appearance: none;
-        }
-
+        select { background-color: #1e293b; color: var(--text-color); border: 2px solid #334155; appearance: none; }
         select:focus { outline: none; border-color: var(--primary-color); }
 
         button {
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: #0f172a;
-            box-shadow: 0 4px 15px rgba(0, 242, 255, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-decoration: none;
-            display: block;
-            text-align: center;
+            color: #0f172a; box-shadow: 0 4px 15px rgba(0, 242, 255, 0.3);
+            text-transform: uppercase; letter-spacing: 1px; text-decoration: none; display: block; text-align: center;
         }
 
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 242, 255, 0.5); }
         button:active { transform: translateY(1px); }
 
-        .rules-box {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
+        .rules-box { background: rgba(0, 0, 0, 0.3); border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 30px; }
         .rules-box h3 { color: var(--primary-color); margin-bottom: 15px; text-align: center; }
         .rules-box ul { list-style: none; }
         .rules-box li { margin-bottom: 10px; display: flex; align-items: center; font-size: 14px; }
         .rules-box li span { margin-right: 10px; font-size: 18px; }
         .prize-text { color: var(--gold-color); font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
 
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-weight: 800;
-            font-size: 16px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: 800; font-size: 16px; flex-wrap: wrap; gap: 10px; }
         .header-info { display: flex; gap: 15px; flex-direction: column; }
         .game-header span span { color: var(--primary-color); }
         
-        .money-counter {
-            color: var(--money-color);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(0, 255, 136, 0.1);
-            padding: 5px 10px;
-            border-radius: 20px;
-            border: 1px solid var(--money-color);
-            font-size: 14px;
-            transition: transform 0.2s;
-        }
+        .money-counter { color: var(--money-color); display: flex; align-items: center; gap: 5px; background: rgba(0, 255, 136, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid var(--money-color); font-size: 14px; transition: transform 0.2s; }
         .money-counter.pulse { transform: scale(1.1); }
 
-        .exit-btn {
-            width: auto;
-            margin: 0;
-            padding: 8px 15px;
-            font-size: 12px;
-            font-weight: bold;
-            background: rgba(255, 0, 85, 0.1);
-            color: var(--secondary-color);
-            border: 1px solid var(--secondary-color);
-            box-shadow: none;
-            border-radius: 8px;
-            text-transform: uppercase;
-        }
+        .exit-btn { width: auto; margin: 0; padding: 8px 15px; font-size: 12px; font-weight: bold; background: rgba(255, 0, 85, 0.1); color: var(--secondary-color); border: 1px solid var(--secondary-color); box-shadow: none; border-radius: 8px; text-transform: uppercase; }
         .exit-btn:hover { background: var(--secondary-color); color: white; box-shadow: none; transform: none; }
 
-        #timer-bar {
-            height: 10px;
-            background-color: #334155;
-            border-radius: 5px;
-            margin-bottom: 30px;
-            overflow: hidden;
-        }
+        #timer-bar { height: 10px; background-color: #334155; border-radius: 5px; margin-bottom: 30px; overflow: hidden; }
+        #timer-progress { height: 100%; background: linear-gradient(90deg, var(--secondary-color), var(--primary-color)); width: 100%; box-shadow: 0 0 10px var(--primary-color); }
 
-        #timer-progress {
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-            width: 100%;
-            box-shadow: 0 0 10px var(--primary-color);
-        }
-
-        #question-text {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 40px;
-            min-height: 100px;
-            line-height: 1.4;
-            -webkit-user-select: none; /* ANTI-COPIE */
-            user-select: none; /* ANTI-COPIE */
-        }
-
-        .option-btn {
-            background-color: #1e293b;
-            color: var(--text-color);
-            border: 2px solid #334155;
-            margin-bottom: 15px;
-            text-align: left;
-            box-shadow: none;
-            border-radius: 12px;
-            -webkit-user-select: none; /* ANTI-COPIE */
-            user-select: none; /* ANTI-COPIE */
-        }
-
+        #question-text { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 40px; min-height: 100px; line-height: 1.4; -webkit-user-select: none; user-select: none; }
+        .option-btn { background-color: #1e293b; color: var(--text-color); border: 2px solid #334155; margin-bottom: 15px; text-align: left; box-shadow: none; border-radius: 12px; -webkit-user-select: none; user-select: none; }
         .option-btn:hover { border-color: var(--primary-color); background-color: #24344d; transform: none; box-shadow: none; }
-        
         .option-btn.correct { background-color: var(--success-color); color: #0f172a; border-color: var(--success-color); }
         .option-btn.wrong { background-color: var(--danger-color); color: white; border-color: var(--danger-color); }
 
         #final-score { font-size: 64px; text-align: center; color: var(--success-color); margin-bottom: 20px; font-weight: 800; text-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
         .loading-spinner { text-align: center; font-size: 18px; color: var(--primary-color); animation: pulse 1.5s infinite; }
-
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* Boutons Spéciaux */
-        .tombola-btn {
-            background: linear-gradient(45deg, var(--gold-color), #ffac3c) !important;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3) !important;
-            margin-bottom: 15px;
-            color: #0f172a !important;
-            border: 2px solid var(--gold-color) !important;
-        }
+        .tombola-btn { background: linear-gradient(45deg, var(--gold-color), #ffac3c) !important; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3) !important; margin-bottom: 15px; color: #0f172a !important; border: 2px solid var(--gold-color) !important; }
         .tombola-btn:hover { box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5) !important; }
-        
-        .btn-purple {
-            background: linear-gradient(45deg, #9333ea, #db2777) !important;
-            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3) !important;
-            color: white !important;
-        }
+        .btn-purple { background: linear-gradient(45deg, #9333ea, #db2777) !important; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3) !important; color: white !important; }
+        .disabled { background: #334155 !important; color: #64748b !important; box-shadow: none !important; border-color: #475569 !important; pointer-events: none; }
 
-        .disabled {
-            background: #334155 !important;
-            color: #64748b !important;
-            box-shadow: none !important;
-            border-color: #475569 !important;
-            pointer-events: none;
-        }
-
-        /* Fenêtre Popup (Modal) */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
-        .modal-box {
-            background: #1e293b;
-            border: 2px solid var(--primary-color);
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 400px;
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
-            text-align: center;
-        }
+        .modal-box { background: #1e293b; border: 2px solid var(--primary-color); border-radius: 15px; padding: 30px; max-width: 400px; box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); text-align: center; }
         .modal-box h3 { color: var(--primary-color); margin-bottom: 15px; font-size: 24px; }
         .modal-box p { font-size: 15px; line-height: 1.5; margin-bottom: 25px; color: #e2e8f0; }
-        .modal-box .btn-secondary {
-            background: transparent;
-            border: 1px solid #64748b;
-            color: #94a3b8;
-            box-shadow: none;
-        }
-        
-        /* Emplacements Pubs (Cachés visuellement, gérés par JS) */
+        .modal-box .btn-secondary { background: transparent; border: 1px solid #64748b; color: #94a3b8; box-shadow: none; }
         .ad-slot { display: none; }
-
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <!-- ACCUEIL -->
         <div id="home-screen" class="screen active">
             <h1>QuizBlitz AI</h1>
             <p class="subtitle" id="home-subtitle">⚡ Affronte l'IA et teste ta culture générale ! ⚡</p>
-            
             <label for="theme-select" id="label-theme">Choisis ton Thème</label>
-            <select id="theme-select">
-                <option value="Culture Générale">Culture Générale</option>
-                <option value="Sport">Sport</option>
-                <option value="Histoire">Histoire</option>
-                <option value="Sciences">Sciences</option>
-                <option value="Géographie">Géographie</option>
-            </select>
-
+            <select id="theme-select"><option value="Culture Générale">Culture Générale</option><option value="Sport">Sport</option><option value="Histoire">Histoire</option><option value="Sciences">Sciences</option><option value="Géographie">Géographie</option></select>
             <label for="language-select" id="label-language">Choisis ta Région / Langue</label>
-            <select id="language-select" onchange="updateUILanguage()">
-                <option value="français (Europe)">🇫🇷 Français (Europe)</option>
-                <option value="anglais (International)">🇬🇧 Anglais (International)</option>
-                <option value="arabe (MENA)">🇸🇦 Arabe (MENA)</option>
-                <option value="espagnol (Espagne et Amérique Latine)">🇪🇸 Espagnol (Latino)</option>
-                <option value="portugais (Brésil et Portugal)">🇵🇹 Portugais (BR/PT)</option>
-                <option value="russe (Russie et Europe de l'Est)">🇷🇺 Russe (Russie/EE)</option>
-                <option value="chinois (Chine et Asie de l'Est)">🇨🇳 Chinois (Asie)</option>
-            </select>
-
+            <select id="language-select" onchange="updateUILanguage()"><option value="français (Europe)">🇫🇷 Français (Europe)</option><option value="anglais (International)">🇬🇧 Anglais (International)</option><option value="arabe (MENA)">🇸🇦 Arabe (MENA)</option><option value="espagnol (Espagne et Amérique Latine)">🇪🇸 Espagnol (Latino)</option><option value="portugais (Brésil et Portugal)">🇵🇹 Portugais (BR/PT)</option><option value="russe (Russie et Europe de l'Est)">🇷🇺 Russe (Russie/EE)</option><option value="chinois (Chine et Asie de l'Est)">🇨🇳 Chinois (Asie)</option></select>
             <button id="show-tombola-btn" class="tombola-btn">🎁 Participer au tirage au sort</button>
             <button id="start-btn">Lancer le Défi</button>
         </div>
 
-        <!-- RÈGLES & GAINS -->
         <div id="rules-screen" class="screen">
             <h1 id="rules-title">Règles du Jeu</h1>
             <div class="rules-box">
@@ -334,7 +147,6 @@
             <button id="start-quiz-btn">J'ai compris, en jeu !</button>
         </div>
 
-        <!-- JEU -->
         <div id="game-screen" class="screen">
             <div class="game-header">
                 <div class="header-info">
@@ -346,36 +158,23 @@
                     <button id="exit-btn" class="exit-btn">Quitter</button>
                 </div>
             </div>
-            
             <div id="timer-bar"><div id="timer-progress"></div></div>
-
             <div id="question-text" class="loading-spinner">Chargement...</div>
             <div id="options-container"></div>
-            
-            <!-- Emplacement Pub de Chargement (Caché, géré par JS) -->
-            <div id="ad-loading" class="ad-slot ad-loading-slot">
-                PUB ICI (Monetag/Adsterra) - Pendant le chargement de l'IA
-            </div>
-
-            <!-- Emplacement pour les pubs interstitielles (Caché, géré par JS) -->
-            <div id="ad-interstitial" class="ad-slot">
-                PUB ICI (Monetag/Adsterra) - Cliquez pour continuer
-            </div>
+            <div id="ad-loading" class="ad-slot ad-loading-slot">PUB ICI</div>
+            <div id="ad-interstitial" class="ad-slot">PUB ICI</div>
         </div>
 
-        <!-- FIN -->
         <div id="end-screen" class="screen">
             <h1 id="end-title">Terminé !</h1>
             <p class="subtitle" id="final-score-subtitle">Voici ton score final</p>
             <div id="final-score">0</div>
             <div class="money-counter" style="margin: 0 auto 20px; width: fit-content; font-size: 20px;">💵 <span id="final-virtual-money">0,00$</span> 🎁</div>
-            
             <a href="#" target="_blank" class="tombola-btn disabled" id="end-tombola-btn">🎁 Participer au tirage au sort</a>
             <p id="tombola-msg" style="text-align:center; font-size:13px; color:#94a3b8; margin-bottom:20px;"></p>
             <button id="restart-btn">Rejouer</button>
         </div>
 
-        <!-- POPUPS (MODALS) -->
         <div id="tombola-modal" class="modal-overlay">
             <div class="modal-box">
                 <h3 id="modal-title">🎁 Inscription au Tombola</h3>
@@ -397,21 +196,9 @@
     </div>
 
     <script>
-        // Plus besoin de l'API en direct ! On lit le fichier local.
-        // const API_URL = '/api/gemini'; 
-        
-        let currentScore = 0;
-        let virtualMoney = 0;
-        let currentQuestionNum = 1;
-        let quizQuestions = []; 
-        let questionsDatabase = null; // Stockera tout le fichier JSON
-        let timerInterval;
-        let timeLeft = 15;
-        let revivesUsed = 0;
-        const MAX_REVIVES = 6;
-        const INTERSTITIAL_QUESTIONS = [8, 15, 22, 29];
-
-        // Lien de ton formulaire Google Forms
+        const API_URL = '/api/gemini'; // On retourne à l'API en direct !
+        let currentScore = 0, virtualMoney = 0, currentQuestionNum = 1, quizQuestions = [], timerInterval, timeLeft = 15, revivesUsed = 0;
+        const MAX_REVIVES = 6, INTERSTITIAL_QUESTIONS = [8, 15, 22, 29];
         const TOMBOLA_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc9HWBwJYWBoRNsdOdV7MkJIzBvCk6-NbPWlFQ34cPy7P9AdQ/viewform?usp=dialog";
 
         const homeScreen = document.getElementById('home-screen');
@@ -421,39 +208,17 @@
         const tombolaModal = document.getElementById('tombola-modal');
         const adReviveModal = document.getElementById('ad-revive-modal');
 
-        // ==========================================
-        // FONCTION D'INJECTION MONETAG MULTITAG
-        // ==========================================
         function triggerMonetagAd() {
             try {
                 const oldScripts = document.querySelectorAll('script[src*="quge5.com"]');
                 oldScripts.forEach(el => el.remove());
-
                 const s = document.createElement('script');
-                s.src = 'https://quge5.com/88/tag.min.js';
-                s.setAttribute('data-zone', '273787');
-                s.async = true;
-                s.setAttribute('data-cfasync', 'false');
-                
+                s.src = 'https://quge5.com/88/tag.min.js'; s.setAttribute('data-zone', '273787');
+                s.async = true; s.setAttribute('data-cfasync', 'false');
                 document.body.appendChild(s);
-            } catch(e) {
-                console.error("Erreur Monetag:", e);
-            }
+            } catch(e) {}
         }
 
-        // Charger la base de données de questions dès le démarrage
-        async function loadQuestionsDatabase() {
-            try {
-                const response = await fetch('/questions.json');
-                questionsDatabase = await response.json();
-                console.log("Base de données de questions chargée avec succès.");
-            } catch (error) {
-                console.error("Erreur lors du chargement de questions.json:", error);
-            }
-        }
-        loadQuestionsDatabase(); // Appelé au chargement de la page
-
-        // Dictionnaire de traduction 
         const translations = {
             "français (Europe)": { home_sub: "⚡ Affronte l'IA et teste ta culture générale ! ⚡", label_theme: "Choisis ton Thème", label_lang: "Choisis ta Région / Langue", start_btn: "Lancer le Défi", rules_title: "Règles du Jeu", how_title: "📝 Comment jouer ?", r1: "30 questions difficiles générées par l'IA.", r2: "15 secondes par question.", r3: "1 bonne réponse = 0,33$ virtuel (10$ au total).", r4: "Atteins 10$ (30/30) pour le vrai tirage au sort !", prize_title: "🎁 Gains & Récompenses", prize_txt: "Atteins un score parfait de <span class='prize-text'>10$ (30/30)</span> pour débloquer le bouton d'or et participer au tirage au sort mensuel !<br>Tente de gagner des cartes cadeaux (Amazon, PayPal) et des prix en argent réel.<br><br><em>Joue, gagne, et domine le classement !</em>", start_quiz_btn: "J'ai compris, en jeu !", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quitter", end_title: "Terminé !", final_sub: "Voici ton score final", tombola_btn: "🎁 Participer au tirage au sort", restart_btn: "Rejouer", loading: "L'IA prépare vos 30 questions, patientez...", api_error_quota: "L'IA est très sollicitée par d'autres joueurs en ce moment. Réessaie dans 1 minute !", modal_title: "🎁 Inscription au Tombola", modal_txt: "L'inscription au tombola est conditionnée par l'atteinte d'un score parfait de 10$ (30 réponses correctes sur 30). Tu devras répondre à toutes les questions sans faute pour accéder au formulaire d'inscription !", close_modal: "J'ai compris !", end_tombola_locked: "Atteins 10$ (30/30) pour débloquer l'inscription au tombola !", revive_title: "🎥 Seconde Chance !", revive_txt: "Tu as raté la question ! Regarde une courte publicité pour réessayer cette même question. (Limité à 6 fois par partie).", watch_ad: "▶️ Regarder", skip_ad: "Refuser" },
             "anglais (International)": { home_sub: "⚡ Face the AI and test your general knowledge ! ⚡", label_theme: "Choose your Theme", label_lang: "Choose your Region / Language", start_btn: "Start Challenge", rules_title: "Game Rules", how_title: "📝 How to play?", r1: "30 hard AI-generated questions.", r2: "15 seconds per question.", r3: "1 correct answer = $0.33 virtual ($10 total).", r4: "Reach $10 (30/30) for the real raffle!", prize_title: "🎁 Prizes & Rewards", prize_txt: "Reach a perfect score of <span class='prize-text'>$10 (30/30)</span> to unlock the golden button and enter the monthly raffle !<br>Win gift cards (Amazon, PayPal) and real cash prizes.<br><br><em>Play, win, and rule the leaderboard!</em>", start_quiz_btn: "Got it, let's play!", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quit", end_title: "Finished!", final_sub: "Here is your final score", tombola_btn: "🎁 Enter the raffle", restart_btn: "Play Again", loading: "The AI is preparing your 30 questions, please wait...", api_error_quota: "The AI is very busy with other players right now. Please try again in 1 minute!", modal_title: "🎁 Raffle Registration", modal_txt: "Registration for the raffle is conditional upon reaching a perfect score of $10 (30 out of 30 correct answers). You must answer all questions flawlessly to access the registration form!", close_modal: "Got it!", end_tombola_locked: "Reach $10 (30/30) to unlock raffle registration!", revive_title: "🎥 Second Chance!", revive_txt: "You missed the question! Watch a short ad to retry this same question. (Limited to 6 times per game).", watch_ad: "▶️ Watch", skip_ad: "Skip" },
@@ -465,19 +230,13 @@
         };
 
         function updateUILanguage() {
-            const langSelect = document.getElementById('language-select');
-            const selectedLang = langSelect.value;
-            const t = translations[selectedLang] || translations["français (Europe)"]; 
-
-            if (selectedLang.includes("arabe")) document.body.style.direction = "rtl";
-            else document.body.style.direction = "ltr";
-
+            const t = translations[document.getElementById('language-select').value] || translations["français (Europe)"];
+            if (document.getElementById('language-select').value.includes("arabe")) document.body.style.direction = "rtl"; else document.body.style.direction = "ltr";
             document.getElementById('home-subtitle').innerText = t.home_sub;
             document.getElementById('label-theme').innerText = t.label_theme;
             document.getElementById('label-language').innerText = t.label_lang;
             document.getElementById('start-btn').innerText = t.start_btn;
             document.getElementById('show-tombola-btn').innerText = t.tombola_btn;
-            
             document.getElementById('rules-title').innerText = t.rules_title;
             document.getElementById('rules-how-title').innerText = t.how_title;
             document.getElementById('rule1').innerText = t.r1;
@@ -487,20 +246,16 @@
             document.getElementById('prize-title').innerText = t.prize_title;
             document.getElementById('prize-text-content').innerHTML = t.prize_txt; 
             document.getElementById('start-quiz-btn').innerText = t.start_quiz_btn;
-
             document.getElementById('score-label').innerHTML = t.score_lbl + ' <span id="score">0</span> / 30';
             document.getElementById('question-label').innerHTML = t.q_lbl + ' <span id="question-num">1</span>/<span id="total-questions">30</span>';
             document.getElementById('exit-btn').innerText = t.exit_btn;
-
             document.getElementById('end-title').innerText = t.end_title;
             document.getElementById('final-score-subtitle').innerText = t.final_sub;
             document.getElementById('end-tombola-btn').innerText = t.tombola_btn;
             document.getElementById('restart-btn').innerText = t.restart_btn;
-
             document.getElementById('modal-title').innerText = t.modal_title;
             document.getElementById('modal-text').innerText = t.modal_txt;
             document.getElementById('close-modal-btn').innerText = t.close_modal;
-            
             document.getElementById('revive-title').innerText = t.revive_title;
             document.getElementById('revive-text').innerText = t.revive_txt;
             document.getElementById('watch-ad-btn').innerText = t.watch_ad;
@@ -508,64 +263,39 @@
         }
 
         window.onload = updateUILanguage;
-
-        document.getElementById('show-tombola-btn').addEventListener('click', () => { tombolaModal.classList.add('active'); });
-        document.getElementById('close-modal-btn').addEventListener('click', () => { tombolaModal.classList.remove('active'); });
-
-        document.getElementById('start-btn').addEventListener('click', () => {
-            homeScreen.classList.remove('active');
-            rulesScreen.classList.add('active');
-        });
+        document.getElementById('show-tombola-btn').addEventListener('click', () => tombolaModal.classList.add('active'));
+        document.getElementById('close-modal-btn').addEventListener('click', () => tombolaModal.classList.remove('active'));
+        document.getElementById('start-btn').addEventListener('click', () => { homeScreen.classList.remove('active'); rulesScreen.classList.add('active'); });
 
         document.getElementById('start-quiz-btn').addEventListener('click', async () => {
             rulesScreen.classList.remove('active');
             gameScreen.classList.add('active');
             
             const t = translations[document.getElementById('language-select').value] || translations["français (Europe)"];
-            
-            currentScore = 0;
-            virtualMoney = 0.00;
-            revivesUsed = 0;
+            currentScore = 0; virtualMoney = 0.00; revivesUsed = 0;
             document.getElementById('score').innerText = currentScore;
             document.getElementById('virtual-money').innerText = virtualMoney.toFixed(2) + "$";
             currentQuestionNum = 1;
-            
             document.getElementById('question-num').innerText = currentQuestionNum;
             document.getElementById('question-text').innerText = t.loading;
             document.getElementById('question-text').classList.add('loading-spinner');
             document.getElementById('options-container').innerHTML = '';
-            
-            // Lancer la pub Monetag au début du chargement
             triggerMonetagAd();
 
-            const theme = document.getElementById('theme-select').value;
-            const language = document.getElementById('language-select').value;
-
             try {
-                // Vérifier que la base de données est bien chargée
-                if (!questionsDatabase || !questionsDatabase[language] || !questionsDatabase[language][theme]) {
-                    throw new Error('DATABASE_ERROR');
-                }
-
-                // Récupérer toutes les questions disponibles pour ce thème/langue
-                const availableQuestions = questionsDatabase[language][theme];
-                
-                // Mélanger les questions et en prendre 30 au hasard
-                const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-                quizQuestions = shuffled.slice(0, 30);
-
-                // Si le joueur relance plusieurs fois, on s'assure qu'il n'y a pas de bug si on n'a pas assez de questions
-                if(quizQuestions.length === 0) throw new Error('DATABASE_ERROR');
-
-                // Petite pause factice de 2 secondes pour laisser la pub s'afficher
-                setTimeout(() => {
-                    displayQuestion();
-                }, 2000);
-
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ theme: document.getElementById('theme-select').value, language: document.getElementById('language-select').value })
+                });
+                const data = await response.json();
+                if (!response.ok || data.error) throw new Error('API_ERROR');
+                quizQuestions = data; 
+                displayQuestion();
             } catch (error) {
                 const questionText = document.getElementById('question-text');
                 questionText.classList.remove('loading-spinner');
-                questionText.innerText = "Erreur de chargement des questions. Réessaie.";
+                questionText.innerText = "Erreur de connexion ou l'IA est surchargée. Réessaie.";
             }
         });
         
@@ -574,36 +304,26 @@
 
         function resetGame() {
             clearInterval(timerInterval);
-            currentScore = 0;
-            virtualMoney = 0;
-            currentQuestionNum = 1;
-            revivesUsed = 0;
-            quizQuestions = [];
+            currentScore = 0; virtualMoney = 0; currentQuestionNum = 1; revivesUsed = 0; quizQuestions = [];
             gameScreen.classList.remove('active');
             endScreen.classList.remove('active');
             homeScreen.classList.add('active');
         }
 
         function displayQuestion() {
-            if (INTERSTITIAL_QUESTIONS.includes(currentQuestionNum)) {
-                triggerMonetagAd();
-            }
-
+            if (INTERSTITIAL_QUESTIONS.includes(currentQuestionNum)) triggerMonetagAd();
             const q = quizQuestions[currentQuestionNum - 1];
             document.getElementById('question-num').innerText = currentQuestionNum;
             document.getElementById('question-text').classList.remove('loading-spinner');
             document.getElementById('question-text').innerText = q.question;
-
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
             q.options.forEach((option, index) => {
                 const btn = document.createElement('button');
-                btn.innerText = option;
-                btn.classList.add('option-btn');
+                btn.innerText = option; btn.classList.add('option-btn');
                 btn.addEventListener('click', () => selectAnswer(index, q.correct_index, btn));
                 optionsContainer.appendChild(btn);
             });
-
             startTimer();
         }
 
@@ -612,19 +332,11 @@
             const timerProgress = document.getElementById('timer-progress');
             timerProgress.style.transition = 'none';
             timerProgress.style.width = '100%';
-            
-            setTimeout(() => {
-                timerProgress.style.transition = 'width 15s linear';
-                timerProgress.style.width = '0%';
-            }, 100);
-
+            setTimeout(() => { timerProgress.style.transition = 'width 15s linear'; timerProgress.style.width = '0%'; }, 100);
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timeLeft--;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    selectAnswer(-1, -1, null);
-                }
+                if (timeLeft <= 0) { clearInterval(timerInterval); selectAnswer(-1, -1, null); }
             }, 1000);
         }
 
@@ -632,42 +344,31 @@
             clearInterval(timerInterval);
             const buttons = document.querySelectorAll('.option-btn');
             buttons.forEach(btn => btn.style.pointerEvents = 'none');
-
             const isCorrect = selectedIndex === correctIndex;
 
             if (isCorrect) {
                 clickedBtn.classList.add('correct');
                 currentScore += 1; 
-                
                 virtualMoney = currentScore * 0.33;
                 if (currentScore === 30) virtualMoney = 10.00;
-                
                 document.getElementById('score').textContent = currentScore;
                 document.getElementById('virtual-money').textContent = virtualMoney.toFixed(2) + "$";
-                
                 const moneyDisplay = document.getElementById('money-display');
                 moneyDisplay.classList.add('pulse');
                 setTimeout(() => moneyDisplay.classList.remove('pulse'), 200);
-
                 nextQuestion();
             } else {
                 if (selectedIndex !== -1) clickedBtn.classList.add('wrong');
                 if (buttons[correctIndex]) buttons[correctIndex].classList.add('correct');
-
-                if (revivesUsed < MAX_REVIVES) {
-                    adReviveModal.classList.add('active');
-                } else {
-                    nextQuestion();
-                }
+                if (revivesUsed < MAX_REVIVES) adReviveModal.classList.add('active');
+                else nextQuestion();
             }
         }
 
         document.getElementById('watch-ad-btn').addEventListener('click', () => {
             adReviveModal.classList.remove('active');
             revivesUsed++;
-            
             triggerMonetagAd();
-
             setTimeout(() => {
                 const buttons = document.querySelectorAll('.option-btn');
                 buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
@@ -675,19 +376,13 @@
             }, 1000);
         });
 
-        document.getElementById('skip-ad-btn').addEventListener('click', () => {
-            adReviveModal.classList.remove('active');
-            nextQuestion();
-        });
+        document.getElementById('skip-ad-btn').addEventListener('click', () => { adReviveModal.classList.remove('active'); nextQuestion(); });
 
         function nextQuestion() {
             setTimeout(() => {
                 currentQuestionNum++;
-                if (currentQuestionNum <= quizQuestions.length) {
-                    displayQuestion();
-                } else {
-                    endQuiz();
-                }
+                if (currentQuestionNum <= quizQuestions.length) displayQuestion();
+                else endQuiz();
             }, 1500);
         }
 
@@ -696,7 +391,6 @@
             endScreen.classList.add('active');
             document.getElementById('final-score').innerText = currentScore + " / 30";
             document.getElementById('final-virtual-money').innerText = virtualMoney.toFixed(2) + "$";
-
             const t = translations[document.getElementById('language-select').value] || translations["français (Europe)"];
             const endTombolaBtn = document.getElementById('end-tombola-btn');
             const tombolaMsg = document.getElementById('tombola-msg');
