@@ -1,84 +1,49 @@
-export const config = {
-  maxDuration: 60,
-};
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
 
-  try {
     const { theme, language } = req.body;
+    const apiKey = process.env.GROQ_API_KEY;
 
-    const prompt = `Tu es un générateur de quiz pour un jeu mobile expert. 
-    Génère 30 questions DIFFICILES en ${language} sur le thème : ${theme}.
-    Les questions doivent être culturellement pertinentes pour la région ${language}.
-    Sois très créatif et original. Évite absolument les questions trop évidentes ou classiques.
-    
-    RÈGLE SPÉCIALE ANTI-TRICHE ET DE SÉLECTION : Parmi ces 30 questions, tu DOIS en inclure EXACTEMENT UNE qui est un "piège fatal". 
-    Une question piège fatal est une question si contre-intuitive ou obscure que 99% des gens se trompent sur la réponse évidente (ex: "Quelle est la capitale de l'Australie ?" Faux: Sydney, Vrai: Canberra, ou "De quelle couleur est la boîte noire d'un avion ?" Vrai: Orange). 
-    Cette question doit être placée aléatoirement parmi les 30. C'est elle qui empêchera les joueurs de gagner facilement le 30/30.
-    
-    TRÈS IMPORTANT : Tu DOIS absolument écrire la question et les options dans la langue exacte demandée (${language}) en utilisant son alphabet natif. Ne traduis jamais en français.
-    Tu dois répondre STRICTEMENT au format JSON (un tableau contenant 30 objets), sans aucun texte avant ou après:
-    [
-      {
-        "question": "Texte de la question 1 ici ?",
-        "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-        "correct_index": 0
-      },
-      ... (total 30 questions)
-    ]
-    (Note: "correct_index" est l'index de la bonne réponse, de 0 à 3).`;
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 1.0,
-          maxOutputTokens: 8192,
-          responseMimeType: "application/json"
-        }
-      })
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      console.error('Erreur renvoyée par Gemini :', data);
-      return res.status(500).json({ error: `Erreur Gemini: ${data.error?.message || JSON.stringify(data)}` });
+    if (!apiKey) {
+        return res.status(500).json({ error: "Clé API Groq manquante sur le serveur." });
     }
 
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
-      console.error('Réponse inattendue de Gemini :', data);
-      return res.status(500).json({ error: 'L\'IA n\'a pas généré de réponse valide.' });
-    }
+    const prompt = `Tu es un générateur de quiz expert. Génère 30 questions de quiz difficiles sur le thème: "${theme}". La langue de sortie doit être: "${language}". Réponds UNIQUEMENT avec un objet JSON valide formaté comme ceci: {"questions": [{"question": "Texte", "options": ["A", "B", "C", "D"], "correct_index": 0}]}`;
 
-    let rawContent = data.candidates[0].content.parts[0].text;
-
-    const startIndex = rawContent.indexOf('[');
-    const endIndex = rawContent.lastIndexOf(']');
-    
-    if (startIndex !== -1 && endIndex !== -1) {
-      rawContent = rawContent.substring(startIndex, endIndex + 1);
-    }
-
-    let quizData;
     try {
-      quizData = JSON.parse(rawContent.trim());
-    } catch (parseError) {
-      console.error('Erreur de parsing JSON:', parseError);
-      return res.status(500).json({ error: `Erreur de format JSON. Texte reçu: ${rawContent}` });
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.1-70b-versatile", // Modèle Llama 3.1 très intelligent
+                messages: [{ role: "user", content: prompt }],
+                response_format: { type: "json_object" },
+                temperature: 0.7
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Erreur API Groq:", errorData);
+            return res.status(500).json({ error: errorData.error?.message || "Erreur de l'API Groq" });
+        }
+
+        const data = await response.json();
+        const content = data.choices[0].message.content;
+        
+        // Groq renvoie un objet JSON contenant un tableau "questions"
+        const parsed = JSON.parse(content);
+        const questionsArray = parsed.questions || parsed;
+
+        res.status(200).json(questionsArray);
+
+    } catch (error) {
+        console.error("Erreur interne:", error);
+        res.status(500).json({ error: "Erreur interne du serveur." });
     }
-
-    res.status(200).json(quizData);
-
-  } catch (error) {
-    console.error('Erreur API Gemini:', error);
-    res.status(500).json({ error: `Erreur système: ${error.message}` });
-  }
 }
