@@ -10,7 +10,7 @@
     <meta property="og:description" content="30 questions générées par l'IA en temps réel. Réussis un score parfait (30/30) pour participer au tirage au sort et gagner des cartes cadeaux (Amazon, PayPal) !" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://quizblitz-game.vercel.app" />
-    <meta property="og:image" content="https://quizblitz-game.vercel.app/icon.png" />
+    <meta property="og:image" content="https://quizblitz-game.vercel.app/app-logo.png" />
     
     <!-- SEO POUR GOOGLE -->
     <meta name="description" content="QuizBlitz AI : Le jeu de quiz culturel ultime. 30 questions difficiles générées par l'intelligence artificielle. Joue gratuitement, tente ta chance au tombola !" />
@@ -279,7 +279,6 @@
                     url: 'https://quizblitz-game.vercel.app'
                 }).catch(err => console.log('Partage annulé'));
             } else {
-                // Si le navigateur ne supporte pas le partage natif (ex: PC), on copie le lien
                 navigator.clipboard.writeText(shareText);
                 alert("Lien copié ! Partage-le avec tes amis.");
             }
@@ -498,6 +497,17 @@
                 endTombolaBtn.classList.add('disabled');
                 tombolaMsg.innerText = t.end_tombola_locked;
             }
+        }
+    </script>
+
+    <!-- ENREGISTREMENT DU SERVICE WORKER POUR PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker enregistré !'))
+                    .catch(err => console.log('Erreur SW:', err));
+            });
         }
     </script>
 </body>
