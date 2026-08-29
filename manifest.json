@@ -1,16 +1,36 @@
 {
   "name": "QuizBlitz AI",
   "short_name": "QuizBlitz",
-  "description": "Affronte l'IA et teste ta culture générale !",
+  "description": "Affronte l'IA et teste ta culture générale ! Gagne des prix.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "browser"],
+  "orientation": "portrait",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
+  "dir": "ltr",
+  "lang": "fr",
+  "categories": ["games", "education", "entertainment"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
