@@ -14,6 +14,7 @@
   "lang": "fr",
   "categories": ["games", "education", "entertainment"],
   "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
       "src": "app-logo.png",
