@@ -37,6 +37,7 @@
             --text-color: #f8fafc;
             --gold-color: #ffd700;
             --money-color: #00ff88;
+            --streak-color: #ff8c00;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Roboto, sans-serif; }
@@ -98,7 +99,10 @@
         .money-counter { color: var(--money-color); display: flex; align-items: center; gap: 5px; background: rgba(0, 255, 136, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid var(--money-color); font-size: 14px; transition: transform 0.2s; }
         .money-counter.pulse { transform: scale(1.1); }
         
-        .energy-counter { text-align: center; margin-bottom: 25px; font-weight: bold; color: var(--primary-color); font-size: 18px; background: rgba(0, 242, 255, 0.1); padding: 10px; border-radius: 12px; border: 1px solid var(--primary-color); }
+        .stats-row { display: flex; gap: 10px; margin-bottom: 25px; }
+        .stat-box { flex: 1; text-align: center; font-weight: bold; font-size: 16px; padding: 10px; border-radius: 12px; }
+        .energy-counter { color: var(--primary-color); background: rgba(0, 242, 255, 0.1); border: 1px solid var(--primary-color); }
+        .streak-counter { color: var(--streak-color); background: rgba(255, 140, 0, 0.1); border: 1px solid var(--streak-color); }
 
         .exit-btn { width: auto; margin: 0; padding: 8px 15px; font-size: 12px; font-weight: bold; background: rgba(255, 0, 85, 0.1); color: var(--secondary-color); border: 1px solid var(--secondary-color); box-shadow: none; border-radius: 8px; text-transform: uppercase; }
         .exit-btn:hover { background: var(--secondary-color); color: white; box-shadow: none; transform: none; }
@@ -121,14 +125,7 @@
         .btn-purple { background: linear-gradient(45deg, #9333ea, #db2777) !important; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3) !important; color: white !important; }
         .disabled { background: #334155 !important; color: #64748b !important; box-shadow: none !important; border-color: #475569 !important; pointer-events: none; }
         
-        /* Style pour le bouton Partager */
-        .share-btn {
-            background: transparent !important;
-            border: 2px solid var(--primary-color) !important;
-            color: var(--primary-color) !important;
-            box-shadow: none !important;
-            margin-bottom: 15px;
-        }
+        .share-btn { background: transparent !important; border: 2px solid var(--primary-color) !important; color: var(--primary-color) !important; box-shadow: none !important; margin-bottom: 15px; }
         .share-btn:hover { background: rgba(0, 242, 255, 0.1) !important; transform: none !important; box-shadow: none !important; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
@@ -139,30 +136,13 @@
         .modal-box .btn-secondary { background: transparent; border: 1px solid #64748b; color: #94a3b8; box-shadow: none; }
         .ad-slot { display: none; }
 
-        /* CSS pour la surcouche Pub Interstitielle Personnalisée (Sécurité Mobile) */
-        #custom-ad-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 2147483647 !important; flex-direction: column;
-            justify-content: center; align-items: center; padding: 20px; text-align: center;
-            overflow: hidden; 
-        }
+        #custom-ad-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2147483647 !important; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; overflow: hidden; }
         #custom-ad-overlay.active { display: flex; }
-        #ad-container-wrapper {
-            background: #fff; padding: 15px; border-radius: 10px; max-width: 320px; width: 100%;
-            margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            overflow: hidden; height: 250px;
-        }
-        #close-ad-btn {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            margin-top: 0; background: var(--success-color); color: var(--bg-dark);
-            width: auto; padding: 12px 30px; margin-bottom: 0; font-size: 16px;
-            z-index: 2147483648 !important; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
+        #ad-container-wrapper { background: #fff; padding: 15px; border-radius: 10px; max-width: 320px; width: 100%; margin-bottom: 25px; box-shadow: 0 0 20px rgba(0,0,0,0.5); overflow: hidden; height: 250px; }
+        #close-ad-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); margin-top: 0; background: var(--success-color); color: var(--bg-dark); width: auto; padding: 12px 30px; margin-bottom: 0; font-size: 16px; z-index: 2147483648 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         #close-ad-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; transform: translateX(-50%); }
         .ad-label { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
         
-        /* CSS POUR LE CLASSEMENT */
         .leaderboard-box { margin-top: 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--secondary-color); border-radius: 12px; padding: 15px; }
         .leaderboard-box h3 { color: var(--secondary-color); text-align: center; margin-bottom: 10px; font-size: 18px; text-transform: uppercase; }
         .leaderboard-row { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid #334155; font-size: 14px; }
@@ -174,25 +154,22 @@
 </head>
 <body>
 
-    <!-- SURCOUCHE PUB PLEIN ÉCRAN -->
     <div id="custom-ad-overlay">
         <div class="ad-label">Publicité</div>
-        <div id="ad-container-wrapper">
-            <div id="container-5262bca8cf7144a4c115fe28ae2d7644"></div>
-        </div>
+        <div id="ad-container-wrapper"><div id="container-5262bca8cf7144a4c115fe28ae2d7644"></div></div>
         <button id="close-ad-btn" disabled>Patientez 3s...</button>
     </div>
-
-    <!-- ADSTERRA NATIVE BANNER SCRIPT -->
     <script async="async" data-cfasync="false" src="https://pl31070862.profitableratecpmnetwork.com/5262bca8cf7144a4c115fe28ae2d7644/invoke.js"></script>
 
     <div class="app-container">
-        <!-- ACCUEIL -->
         <div id="home-screen" class="screen active">
             <h1>QuizBlitz AI</h1>
             <p class="subtitle" id="home-subtitle">⚡ Affronte l'IA et teste ta culture générale ! ⚡</p>
             
-            <div class="energy-counter">🔋 Énergie : <span id="energy-count">5</span> / 5</div>
+            <div class="stats-row">
+                <div class="stat-box energy-counter">🔋 Énergie : <span id="energy-count">5</span>/5</div>
+                <div class="stat-box streak-counter">🔥 Série : <span id="streak-count">0</span> j</div>
+            </div>
             
             <label for="theme-select" id="label-theme">Choisis ton Thème</label>
             <select id="theme-select"><option value="Gaming">Gaming 🎮</option><option value="Culture Générale">Culture Générale</option><option value="Sport">Sport</option><option value="Histoire">Histoire</option><option value="Sciences">Sciences</option><option value="Géographie">Géographie</option></select>
@@ -203,7 +180,6 @@
             <button id="watch-ad-energy-btn" class="btn-purple" style="display: none;">▶️ Regarder une pub (+3 Énergie)</button>
             <button id="share-home-btn" class="share-btn">🔗 Partager le jeu</button>
 
-            <!-- CLASSEMENT MONDIAL -->
             <div class="leaderboard-box">
                 <h3>🏆 Top 10 Mondial</h3>
                 <div id="leaderboard-list" style="text-align: center; opacity: 0.7; font-size: 14px;">Chargement des scores...</div>
@@ -278,13 +254,10 @@
     </div>
 
     <script>
-        // ==========================================
-        // CONFIGURATION SUPABASE
-        // ==========================================
+        // SUPABASE CONFIG
         const SUPABASE_URL = 'https://wjcowlnouzrurybgyfir.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqY293bmxvdXpydXJ5Ymd5ZmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMTUzODQsImV4cCI6MjEwMzY5MTM4NH0.2SouvsfrQbBNRUd4gZC1Ji-iL8p02XzUy-Pl3aiT0_c';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        // ==========================================
 
         const API_URL = '/api/gemini'; 
         let currentScore = 0, virtualMoney = 0, currentQuestionNum = 1, quizQuestions = [], timerInterval, timeLeft = 15, revivesUsed = 0;
@@ -298,10 +271,9 @@
         const tombolaModal = document.getElementById('tombola-modal');
         const adReviveModal = document.getElementById('ad-revive-modal');
 
-        // ==========================================
-        // SYSTEME D'ENERGIE (LOCALSTORAGE)
-        // ==========================================
+        // SYSTEME D'ENERGIE & STREAK
         let energy = 5;
+        let streak = 0;
         const MAX_ENERGY = 5;
         const REWARD_ENERGY = 3;
 
@@ -309,11 +281,18 @@
             const d = new Date();
             return d.toISOString().split('T')[0];
         }
+        
+        function getYesterdayDate() {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            return d.toISOString().split('T')[0];
+        }
 
-        function loadEnergy() {
+        function loadStats() {
             const lastDate = localStorage.getItem('quizblitz_last_date');
             const today = getTodayDate();
             
+            // Reset énergie quotidien
             if (lastDate !== today) {
                 energy = MAX_ENERGY;
                 localStorage.setItem('quizblitz_last_date', today);
@@ -322,15 +301,26 @@
                 const storedEnergy = localStorage.getItem('quizblitz_energy');
                 energy = storedEnergy ? parseInt(storedEnergy) : MAX_ENERGY;
             }
-            updateEnergyUI();
+
+            // Calcul Streak (Série)
+            const lastStreakDate = localStorage.getItem('quizblitz_streak_date');
+            streak = parseInt(localStorage.getItem('quizblitz_streak')) || 0;
+            
+            // Si on a sauté un jour, on reset la série à 0
+            if (lastStreakDate !== today && lastStreakDate !== getYesterdayDate()) {
+                streak = 0;
+                localStorage.setItem('quizblitz_streak', 0);
+            }
+            
+            updateStatsUI();
         }
 
-        function updateEnergyUI() {
-            const energyDisplay = document.getElementById('energy-count');
+        function updateStatsUI() {
+            document.getElementById('energy-count').innerText = energy;
+            document.getElementById('streak-count').innerText = streak;
+            
             const startBtn = document.getElementById('start-btn');
             const adBtn = document.getElementById('watch-ad-energy-btn');
-            
-            if (energyDisplay) energyDisplay.innerText = energy;
 
             if (energy > 0) {
                 startBtn.style.display = 'block';
@@ -346,17 +336,13 @@
             showCustomAd(() => {
                 energy += REWARD_ENERGY;
                 localStorage.setItem('quizblitz_energy', energy);
-                updateEnergyUI();
+                updateStatsUI();
             });
         });
-        // ==========================================
 
-        // ==========================================
-        // FONCTION DE PARTAGE NATIF DYNAMIQUE (MOBILE & PC)
-        // ==========================================
+        // PARTAGE
         function shareGame(isEndScreen = false) {
             let shareText = "🧠 Es-tu plus fort qu'une Intelligence Artificielle ? ⚡\nJoue à QuizBlitz AI, défie l'IA et tente de gagner des cartes cadeaux (Amazon, PayPal) !\n👉 https://quizblitz-game.vercel.app";
-            
             if (isEndScreen) {
                 if (currentScore === 30) {
                     shareText = "🏆 J'ai battu l'IA de QuizBlitz avec un SCORE PARFAIT de 30/30 ! Es-tu assez fort pour faire pareil ? 🧠⚡\n👉 https://quizblitz-game.vercel.app";
@@ -364,13 +350,8 @@
                     shareText = `🧠 Je viens de défier l'IA de QuizBlitz et j'ai eu ${currentScore} / 30 ! Tu penses pouvoir me battre ? 💪⚡\n👉 https://quizblitz-game.vercel.app`;
                 }
             }
-            
             if (navigator.share) {
-                navigator.share({
-                    title: 'QuizBlitz AI ⚡',
-                    text: shareText,
-                    url: 'https://quizblitz-game.vercel.app'
-                }).catch(err => console.log('Partage annulé'));
+                navigator.share({ title: 'QuizBlitz AI ⚡', text: shareText, url: 'https://quizblitz-game.vercel.app' }).catch(err => console.log('Partage annulé'));
             } else {
                 navigator.clipboard.writeText(shareText);
                 alert("Texte copié ! Partage-le avec tes amis sur WhatsApp ou Instagram.");
@@ -378,85 +359,41 @@
         }
         document.getElementById('share-home-btn').addEventListener('click', () => shareGame(false));
         document.getElementById('share-end-btn').addEventListener('click', () => shareGame(true));
-        // ==========================================
 
-        // ==========================================
-        // FONCTION POUR AFFICHER LA VRAIE PUB PLEIN ÉCRAN
-        // ==========================================
+        // PUB
         function showCustomAd(callback) {
             const overlay = document.getElementById('custom-ad-overlay');
             const closeBtn = document.getElementById('close-ad-btn');
-            
             overlay.classList.add('active');
-            closeBtn.disabled = true;
-            closeBtn.innerText = "Patientez 3s...";
-            closeBtn.style.display = 'block';
-
-            setTimeout(() => {
-                closeBtn.disabled = false;
-                closeBtn.innerText = "Continuer le jeu ▶";
-            }, 3000);
-
-            closeBtn.onclick = () => {
-                overlay.classList.remove('active');
-                if (typeof callback === 'function') callback();
-            };
+            closeBtn.disabled = true; closeBtn.innerText = "Patientez 3s..."; closeBtn.style.display = 'block';
+            setTimeout(() => { closeBtn.disabled = false; closeBtn.innerText = "Continuer le jeu ▶"; }, 3000);
+            closeBtn.onclick = () => { overlay.classList.remove('active'); if (typeof callback === 'function') callback(); };
         }
-        // ==========================================
 
-        // ==========================================
-        // FONCTIONS CLASSEMENT MONDIAL (SUPABASE)
-        // ==========================================
+        // CLASSEMENT SUPABASE
         async function fetchLeaderboard() {
-            const { data, error } = await supabase
-                .from('scores')
-                .select('player_name, score')
-                .order('score', { ascending: false })
-                .limit(10);
-
+            const { data, error } = await supabase.from('scores').select('player_name, score').order('score', { ascending: false }).limit(10);
             const list = document.getElementById('leaderboard-list');
-            if (error || !data || data.length === 0) {
-                list.innerHTML = '<p style="text-align: center; opacity: 0.7; font-size: 14px;">Soyez le premier à marquer !</p>';
-                return;
-            }
-
+            if (error || !data || data.length === 0) { list.innerHTML = '<p style="text-align: center; opacity: 0.7; font-size: 14px;">Soyez le premier à marquer !</p>'; return; }
             let html = '';
             data.forEach((row, index) => {
                 const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-                html += `<div class="leaderboard-row">
-                            <span class="lb-rank">${medal}</span>
-                            <span class="lb-name">${row.player_name.substring(0, 15)}</span>
-                            <span class="lb-score">${row.score}/30</span>
-                         </div>`;
+                html += `<div class="leaderboard-row"><span class="lb-rank">${medal}</span><span class="lb-name">${row.player_name.substring(0, 15)}</span><span class="lb-score">${row.score}/30</span></div>`;
             });
             list.innerHTML = html;
         }
-
         async function saveScore() {
-            if (currentScore === 0) return; // On ne sauvegarde pas les scores de 0
-
+            if (currentScore === 0) return;
             let playerName = localStorage.getItem('quizblitz_player_name');
-            
             if (!playerName) {
                 playerName = prompt(`Félicitations ! Tu as eu ${currentScore}/30.\nEntre ton pseudo pour le classement mondial :`, 'Gamer');
-                if (playerName) {
-                    playerName = playerName.substring(0, 15);
-                    localStorage.setItem('quizblitz_player_name', playerName);
-                } else {
-                    return; // A annulé
-                }
+                if (playerName) { playerName = playerName.substring(0, 15); localStorage.setItem('quizblitz_player_name', playerName); } else { return; }
             }
-
-            const { error } = await supabase
-                .from('scores')
-                .insert([{ player_name: playerName, score: currentScore }]);
-            
-            if (!error) {
-                fetchLeaderboard(); // Rafraîchir l'affichage
-            }
+            const { error } = await supabase.from('scores').insert([{ player_name: playerName, score: currentScore }]);
+            if (!error) fetchLeaderboard();
         }
-        // ==========================================
 
+        // TRADUCTIONS
         const translations = {
             "français (Europe)": { home_sub: "⚡ Affronte l'IA et teste ta culture générale ! ⚡", label_theme: "Choisis ton Thème", label_lang: "Choisis ta Région / Langue", start_btn: "Lancer le Défi", rules_title: "Règles du Jeu", how_title: "📝 Comment jouer ?", r1: "30 questions difficiles générées par l'IA.", r2: "15 secondes par question.", r3: "1 bonne réponse = 0,33$ virtuel (10$ au total).", r4: "Atteins 10$ (30/30) pour le vrai tirage au sort !", prize_title: "🎁 Gains & Récompenses", prize_txt: "Atteins un score parfait de <span class='prize-text'>10$ (30/30)</span> pour débloquer le bouton d'or et participer au tirage au sort mensuel !<br>Tente de gagner des cartes cadeaux (Amazon, PayPal) et des prix en argent réel.<br><br><em>Joue, gagne, et domine le classement !</em>", start_quiz_btn: "J'ai compris, en jeu !", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quitter", end_title: "Terminé !", final_sub: "Voici ton score final", tombola_btn: "🎁 Participer au tirage au sort", restart_btn: "Rejouer", loading: "L'IA prépare vos 30 questions, patientez...", api_error_quota: "L'IA est très sollicitée par d'autres joueurs en ce moment. Réessaie dans 1 minute !", modal_title: "🎁 Inscription au Tombola", modal_txt: "L'inscription au tombola est conditionnée par l'atteinte d'un score parfait de 10$ (30 réponses correctes sur 30). Tu devras répondre à toutes les questions sans faute pour accéder au formulaire d'inscription !", close_modal: "J'ai compris !", end_tombola_locked: "Atteins 10$ (30/30) pour débloquer l'inscription au tombola !", revive_title: "🎥 Seconde Chance !", revive_txt: "Tu as raté la question ! Regarde une courte publicité pour réessayer cette même question. (Limité à 6 fois par partie).", watch_ad: "▶️ Regarder", skip_ad: "Refuser" },
             "anglais (International)": { home_sub: "⚡ Face the AI and test your general knowledge ! ⚡", label_theme: "Choose your Theme", label_lang: "Choose your Region / Language", start_btn: "Start Challenge", rules_title: "Game Rules", how_title: "📝 How to play?", r1: "30 hard AI-generated questions.", r2: "15 seconds per question.", r3: "1 correct answer = $0.33 virtual ($10 total).", r4: "Reach $10 (30/30) for the real raffle!", prize_title: "🎁 Prizes & Rewards", prize_txt: "Reach a perfect score of <span class='prize-text'>$10 (30/30)</span> to unlock the golden button and enter the monthly raffle !<br>Win gift cards (Amazon, PayPal) and real cash prizes.<br><br><em>Play, win, and rule the leaderboard!</em>", start_quiz_btn: "Got it, let's play!", score_lbl: "Score:", q_lbl: "Question:", exit_btn: "Quit", end_title: "Finished!", final_sub: "Here is your final score", tombola_btn: "🎁 Enter the raffle", restart_btn: "Play Again", loading: "The AI is preparing your 30 questions, please wait...", api_error_quota: "The AI is very busy with other players right now. Please try again in 1 minute!", modal_title: "🎁 Raffle Registration", modal_txt: "Registration for the raffle is conditional upon reaching a perfect score of $10 (30 out of 30 correct answers). You must answer all questions flawlessly to access the registration form!", close_modal: "Got it!", end_tombola_locked: "Reach $10 (30/30) to unlock raffle registration!", revive_title: "🎥 Second Chance!", revive_txt: "You missed the question! Watch a short ad to retry this same question. (Limited to 6 times per game).", watch_ad: "▶️ Watch", skip_ad: "Skip" },
@@ -502,8 +439,8 @@
 
         window.onload = function() {
             updateUILanguage();
-            loadEnergy();
-            fetchLeaderboard(); // Charger le classement au démarrage
+            loadStats();
+            fetchLeaderboard();
         };
         
         document.getElementById('show-tombola-btn').addEventListener('click', () => tombolaModal.classList.add('active'));
@@ -513,7 +450,25 @@
             if (energy > 0) {
                 energy--;
                 localStorage.setItem('quizblitz_energy', energy);
-                updateEnergyUI();
+                
+                // GESTION DU STREAK (SERIE DE JOURS)
+                const today = getTodayDate();
+                const lastStreakDate = localStorage.getItem('quizblitz_streak_date');
+                
+                if (lastStreakDate !== today) {
+                    streak++;
+                    localStorage.setItem('quizblitz_streak', streak);
+                    localStorage.setItem('quizblitz_streak_date', today);
+                    
+                    // Récompense tous les 3 jours
+                    if (streak % 3 === 0) {
+                        energy++; // +1 énergie bonus
+                        localStorage.setItem('quizblitz_energy', energy);
+                        alert(`🔥 Série de ${streak} jours !\nTu gagnes 1 énergie bonus pour ta fidélité !`);
+                    }
+                }
+                
+                updateStatsUI();
                 homeScreen.classList.remove('active'); 
                 rulesScreen.classList.add('active');
             }
@@ -522,7 +477,6 @@
         document.getElementById('start-quiz-btn').addEventListener('click', async () => {
             rulesScreen.classList.remove('active');
             gameScreen.classList.add('active');
-            
             const t = translations[document.getElementById('language-select').value] || translations["français (Europe)"];
             currentScore = 0; virtualMoney = 0.00; revivesUsed = 0;
             document.getElementById('score').innerText = currentScore;
@@ -535,11 +489,7 @@
 
             showCustomAd(async () => {
                 try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ theme: document.getElementById('theme-select').value, language: document.getElementById('language-select').value })
-                    });
+                    const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ theme: document.getElementById('theme-select').value, language: document.getElementById('language-select').value }) });
                     const data = await response.json();
                     if (!response.ok || data.error) throw new Error('API_ERROR');
                     quizQuestions = data; 
@@ -561,8 +511,8 @@
             gameScreen.classList.remove('active');
             endScreen.classList.remove('active');
             homeScreen.classList.add('active');
-            loadEnergy();
-            fetchLeaderboard(); // Rafraîchir le classement quand on revient à l'accueil
+            loadStats();
+            fetchLeaderboard();
         }
 
         function displayQuestion() {
@@ -588,10 +538,7 @@
             timerProgress.style.width = '100%';
             setTimeout(() => { timerProgress.style.transition = 'width 15s linear'; timerProgress.style.width = '0%'; }, 100);
             clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                if (timeLeft <= 0) { clearInterval(timerInterval); selectAnswer(-1, -1, null); }
-            }, 1000);
+            timerInterval = setInterval(() => { timeLeft--; if (timeLeft <= 0) { clearInterval(timerInterval); selectAnswer(-1, -1, null); } }, 1000);
         }
 
         function selectAnswer(selectedIndex, correctIndex, clickedBtn) {
@@ -599,7 +546,6 @@
             const buttons = document.querySelectorAll('.option-btn');
             buttons.forEach(btn => btn.style.pointerEvents = 'none');
             const isCorrect = selectedIndex === correctIndex;
-
             if (isCorrect) {
                 clickedBtn.classList.add('correct');
                 currentScore += 1; 
@@ -622,7 +568,6 @@
         document.getElementById('watch-ad-btn').addEventListener('click', () => {
             adReviveModal.classList.remove('active');
             revivesUsed++;
-            
             showCustomAd(() => {
                 const buttons = document.querySelectorAll('.option-btn');
                 buttons.forEach(btn => { btn.classList.remove('correct', 'wrong'); btn.style.pointerEvents = 'auto'; });
@@ -633,11 +578,7 @@
         document.getElementById('skip-ad-btn').addEventListener('click', () => { adReviveModal.classList.remove('active'); nextQuestion(); });
 
         function nextQuestion() {
-            setTimeout(() => {
-                currentQuestionNum++;
-                if (currentQuestionNum <= quizQuestions.length) displayQuestion();
-                else endQuiz();
-            }, 1500);
+            setTimeout(() => { currentQuestionNum++; if (currentQuestionNum <= quizQuestions.length) displayQuestion(); else endQuiz(); }, 1500);
         }
 
         function endQuiz() {
@@ -648,32 +589,13 @@
             const t = translations[document.getElementById('language-select').value] || translations["français (Europe)"];
             const endTombolaBtn = document.getElementById('end-tombola-btn');
             const tombolaMsg = document.getElementById('tombola-msg');
-
-            if (currentScore >= 30) {
-                endTombolaBtn.href = TOMBOLA_FORM_URL;
-                endTombolaBtn.classList.remove('disabled');
-                endTombolaBtn.target = "_blank";
-                tombolaMsg.innerText = "";
-            } else {
-                endTombolaBtn.href = "#";
-                endTombolaBtn.classList.add('disabled');
-                tombolaMsg.innerText = t.end_tombola_locked;
-            }
-
-            // Sauvegarder le score dans le classement mondial
+            if (currentScore >= 30) { endTombolaBtn.href = TOMBOLA_FORM_URL; endTombolaBtn.classList.remove('disabled'); endTombolaBtn.target = "_blank"; tombolaMsg.innerText = ""; } 
+            else { endTombolaBtn.href = "#"; endTombolaBtn.classList.add('disabled'); tombolaMsg.innerText = t.end_tombola_locked; }
             saveScore();
         }
     </script>
-
-    <!-- ENREGISTREMENT DU SERVICE WORKER POUR PWA -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker enregistré !'))
-                    .catch(err => console.log('Erreur SW:', err));
-            });
-        }
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').then(reg => console.log('Service Worker enregistré !')).catch(err => console.log('Erreur SW:', err)); }); }
     </script>
 </body>
 </html>
