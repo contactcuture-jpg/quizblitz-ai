@@ -23,6 +23,9 @@
     <!-- ADSTERRA (SOCIAL BAR - Non-intrusif) -->
     <script src="https://pl31070404.profitableratecpmnetwork.com/42/1b/b6/421bb61bb39ae28d627794c09875aaea.js"></script>
 
+    <!-- SUPABASE CLIENT (POUR LE CLASSEMENT) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --primary-color: #00f2ff;
@@ -53,7 +56,7 @@
             position: relative;
         }
 
-        .screen { display: none; flex-direction: column; flex-grow: 1; padding: 25px; justify-content: center; }
+        .screen { display: none; flex-direction: column; flex-grow: 1; padding: 25px; justify-content: center; overflow-y: auto;}
         .screen.active { display: flex; }
 
         h1 { text-align: center; margin-bottom: 10px; font-size: 42px; font-weight: 800; text-transform: uppercase;
@@ -158,6 +161,15 @@
         }
         #close-ad-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; transform: translateX(-50%); }
         .ad-label { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+        
+        /* CSS POUR LE CLASSEMENT */
+        .leaderboard-box { margin-top: 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--secondary-color); border-radius: 12px; padding: 15px; }
+        .leaderboard-box h3 { color: var(--secondary-color); text-align: center; margin-bottom: 10px; font-size: 18px; text-transform: uppercase; }
+        .leaderboard-row { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid #334155; font-size: 14px; }
+        .leaderboard-row:last-child { border-bottom: none; }
+        .lb-rank { color: var(--gold-color); margin-right: 10px; width: 20px; }
+        .lb-name { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lb-score { color: var(--primary-color); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -190,6 +202,12 @@
             <button id="start-btn">Lancer le Défi</button>
             <button id="watch-ad-energy-btn" class="btn-purple" style="display: none;">▶️ Regarder une pub (+3 Énergie)</button>
             <button id="share-home-btn" class="share-btn">🔗 Partager le jeu</button>
+
+            <!-- CLASSEMENT MONDIAL -->
+            <div class="leaderboard-box">
+                <h3>🏆 Top 10 Mondial</h3>
+                <div id="leaderboard-list" style="text-align: center; opacity: 0.7; font-size: 14px;">Chargement des scores...</div>
+            </div>
         </div>
 
         <div id="rules-screen" class="screen">
@@ -260,6 +278,14 @@
     </div>
 
     <script>
+        // ==========================================
+        // CONFIGURATION SUPABASE
+        // ==========================================
+        const SUPABASE_URL = 'https://wjcowlnouzrurybgyfir.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqY293bmxvdXpydXJ5Ymd5ZmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMTUzODQsImV4cCI6MjEwMzY5MTM4NH0.2SouvsfrQbBNRUd4gZC1Ji-iL8p02XzUy-Pl3aiT0_c';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // ==========================================
+
         const API_URL = '/api/gemini'; 
         let currentScore = 0, virtualMoney = 0, currentQuestionNum = 1, quizQuestions = [], timerInterval, timeLeft = 15, revivesUsed = 0;
         const MAX_REVIVES = 6;
@@ -331,7 +357,6 @@
         function shareGame(isEndScreen = false) {
             let shareText = "🧠 Es-tu plus fort qu'une Intelligence Artificielle ? ⚡\nJoue à QuizBlitz AI, défie l'IA et tente de gagner des cartes cadeaux (Amazon, PayPal) !\n👉 https://quizblitz-game.vercel.app";
             
-            // Si on est sur l'écran de fin, on personnalise le message avec le score !
             if (isEndScreen) {
                 if (currentScore === 30) {
                     shareText = "🏆 J'ai battu l'IA de QuizBlitz avec un SCORE PARFAIT de 30/30 ! Es-tu assez fort pour faire pareil ? 🧠⚡\n👉 https://quizblitz-game.vercel.app";
@@ -376,6 +401,59 @@
                 overlay.classList.remove('active');
                 if (typeof callback === 'function') callback();
             };
+        }
+        // ==========================================
+
+        // ==========================================
+        // FONCTIONS CLASSEMENT MONDIAL (SUPABASE)
+        // ==========================================
+        async function fetchLeaderboard() {
+            const { data, error } = await supabase
+                .from('scores')
+                .select('player_name, score')
+                .order('score', { ascending: false })
+                .limit(10);
+
+            const list = document.getElementById('leaderboard-list');
+            if (error || !data || data.length === 0) {
+                list.innerHTML = '<p style="text-align: center; opacity: 0.7; font-size: 14px;">Soyez le premier à marquer !</p>';
+                return;
+            }
+
+            let html = '';
+            data.forEach((row, index) => {
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                html += `<div class="leaderboard-row">
+                            <span class="lb-rank">${medal}</span>
+                            <span class="lb-name">${row.player_name.substring(0, 15)}</span>
+                            <span class="lb-score">${row.score}/30</span>
+                         </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        async function saveScore() {
+            if (currentScore === 0) return; // On ne sauvegarde pas les scores de 0
+
+            let playerName = localStorage.getItem('quizblitz_player_name');
+            
+            if (!playerName) {
+                playerName = prompt(`Félicitations ! Tu as eu ${currentScore}/30.\nEntre ton pseudo pour le classement mondial :`, 'Gamer');
+                if (playerName) {
+                    playerName = playerName.substring(0, 15);
+                    localStorage.setItem('quizblitz_player_name', playerName);
+                } else {
+                    return; // A annulé
+                }
+            }
+
+            const { error } = await supabase
+                .from('scores')
+                .insert([{ player_name: playerName, score: currentScore }]);
+            
+            if (!error) {
+                fetchLeaderboard(); // Rafraîchir l'affichage
+            }
         }
         // ==========================================
 
@@ -425,6 +503,7 @@
         window.onload = function() {
             updateUILanguage();
             loadEnergy();
+            fetchLeaderboard(); // Charger le classement au démarrage
         };
         
         document.getElementById('show-tombola-btn').addEventListener('click', () => tombolaModal.classList.add('active'));
@@ -483,6 +562,7 @@
             endScreen.classList.remove('active');
             homeScreen.classList.add('active');
             loadEnergy();
+            fetchLeaderboard(); // Rafraîchir le classement quand on revient à l'accueil
         }
 
         function displayQuestion() {
@@ -579,6 +659,9 @@
                 endTombolaBtn.classList.add('disabled');
                 tombolaMsg.innerText = t.end_tombola_locked;
             }
+
+            // Sauvegarder le score dans le classement mondial
+            saveScore();
         }
     </script>
 
