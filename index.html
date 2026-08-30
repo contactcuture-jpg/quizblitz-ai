@@ -61,7 +61,7 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
         }
 
-        p.subtitle { text-align: center; margin-bottom: 30px; color: #94a3b8; font-size: 16px; }
+        p.subtitle { text-align: center; margin-bottom: 20px; color: #94a3b8; font-size: 16px; }
         label { display: block; margin-bottom: 10px; font-weight: bold; color: var(--primary-color); text-transform: uppercase; font-size: 14px; }
 
         select, button {
@@ -94,6 +94,8 @@
         
         .money-counter { color: var(--money-color); display: flex; align-items: center; gap: 5px; background: rgba(0, 255, 136, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid var(--money-color); font-size: 14px; transition: transform 0.2s; }
         .money-counter.pulse { transform: scale(1.1); }
+        
+        .energy-counter { text-align: center; margin-bottom: 25px; font-weight: bold; color: var(--primary-color); font-size: 18px; background: rgba(0, 242, 255, 0.1); padding: 10px; border-radius: 12px; border: 1px solid var(--primary-color); }
 
         .exit-btn { width: auto; margin: 0; padding: 8px 15px; font-size: 12px; font-weight: bold; background: rgba(255, 0, 85, 0.1); color: var(--secondary-color); border: 1px solid var(--secondary-color); box-shadow: none; border-radius: 8px; text-transform: uppercase; }
         .exit-btn:hover { background: var(--secondary-color); color: white; box-shadow: none; transform: none; }
@@ -177,12 +179,16 @@
         <div id="home-screen" class="screen active">
             <h1>QuizBlitz AI</h1>
             <p class="subtitle" id="home-subtitle">⚡ Affronte l'IA et teste ta culture générale ! ⚡</p>
+            
+            <div class="energy-counter">🔋 Énergie : <span id="energy-count">5</span> / 5</div>
+            
             <label for="theme-select" id="label-theme">Choisis ton Thème</label>
             <select id="theme-select"><option value="Culture Générale">Culture Générale</option><option value="Sport">Sport</option><option value="Histoire">Histoire</option><option value="Sciences">Sciences</option><option value="Géographie">Géographie</option></select>
             <label for="language-select" id="language-select-label">Choisis ta Région / Langue</label>
             <select id="language-select" onchange="updateUILanguage()"><option value="français (Europe)">🇫🇷 Français (Europe)</option><option value="anglais (International)">🇬🇧 Anglais (International)</option><option value="arabe (MENA)">🇸🇦 Arabe (MENA)</option><option value="espagnol (Espagne et Amérique Latine)">🇪🇸 Espagnol (Latino)</option><option value="portugais (Brésil et Portugal)">🇵🇹 Portugais (BR/PT)</option><option value="russe (Russie et Europe de l'Est)">🇷🇺 Russe (Russie/EE)</option><option value="chinois (Chine et Asie de l'Est)">🇨🇳 Chinois (Asie)</option></select>
             <button id="show-tombola-btn" class="tombola-btn">🎁 Participer au tirage au sort</button>
             <button id="start-btn">Lancer le Défi</button>
+            <button id="watch-ad-energy-btn" class="btn-purple" style="display: none;">▶️ Regarder une pub (+3 Énergie)</button>
             <button id="share-home-btn" class="share-btn">🔗 Partager le jeu</button>
         </div>
 
@@ -265,6 +271,59 @@
         const endScreen = document.getElementById('end-screen');
         const tombolaModal = document.getElementById('tombola-modal');
         const adReviveModal = document.getElementById('ad-revive-modal');
+
+        // ==========================================
+        // SYSTEME D'ENERGIE (LOCALSTORAGE)
+        // ==========================================
+        let energy = 5;
+        const MAX_ENERGY = 5;
+        const REWARD_ENERGY = 3;
+
+        function getTodayDate() {
+            const d = new Date();
+            return d.toISOString().split('T')[0];
+        }
+
+        function loadEnergy() {
+            const lastDate = localStorage.getItem('quizblitz_last_date');
+            const today = getTodayDate();
+            
+            if (lastDate !== today) {
+                energy = MAX_ENERGY;
+                localStorage.setItem('quizblitz_last_date', today);
+                localStorage.setItem('quizblitz_energy', MAX_ENERGY);
+            } else {
+                const storedEnergy = localStorage.getItem('quizblitz_energy');
+                energy = storedEnergy ? parseInt(storedEnergy) : MAX_ENERGY;
+            }
+            updateEnergyUI();
+        }
+
+        function updateEnergyUI() {
+            const energyDisplay = document.getElementById('energy-count');
+            const startBtn = document.getElementById('start-btn');
+            const adBtn = document.getElementById('watch-ad-energy-btn');
+            
+            if (energyDisplay) energyDisplay.innerText = energy;
+
+            if (energy > 0) {
+                startBtn.style.display = 'block';
+                startBtn.classList.remove('disabled');
+                adBtn.style.display = 'none';
+            } else {
+                startBtn.style.display = 'none';
+                adBtn.style.display = 'block';
+            }
+        }
+
+        document.getElementById('watch-ad-energy-btn').addEventListener('click', () => {
+            showCustomAd(() => {
+                energy += REWARD_ENERGY;
+                localStorage.setItem('quizblitz_energy', energy);
+                updateEnergyUI();
+            });
+        });
+        // ==========================================
 
         // ==========================================
         // FONCTION DE PARTAGE NATIF (MOBILE & PC)
@@ -354,10 +413,23 @@
             document.getElementById('skip-ad-btn').innerText = t.skip_ad;
         }
 
-        window.onload = updateUILanguage;
+        window.onload = function() {
+            updateUILanguage();
+            loadEnergy();
+        };
+        
         document.getElementById('show-tombola-btn').addEventListener('click', () => tombolaModal.classList.add('active'));
         document.getElementById('close-modal-btn').addEventListener('click', () => tombolaModal.classList.remove('active'));
-        document.getElementById('start-btn').addEventListener('click', () => { homeScreen.classList.remove('active'); rulesScreen.classList.add('active'); });
+        
+        document.getElementById('start-btn').addEventListener('click', () => {
+            if (energy > 0) {
+                energy--;
+                localStorage.setItem('quizblitz_energy', energy);
+                updateEnergyUI();
+                homeScreen.classList.remove('active'); 
+                rulesScreen.classList.add('active');
+            }
+        });
 
         document.getElementById('start-quiz-btn').addEventListener('click', async () => {
             rulesScreen.classList.remove('active');
@@ -401,6 +473,7 @@
             gameScreen.classList.remove('active');
             endScreen.classList.remove('active');
             homeScreen.classList.add('active');
+            loadEnergy();
         }
 
         function displayQuestion() {
