@@ -326,10 +326,19 @@
         // ==========================================
 
         // ==========================================
-        // FONCTION DE PARTAGE NATIF (MOBILE & PC)
+        // FONCTION DE PARTAGE NATIF DYNAMIQUE (MOBILE & PC)
         // ==========================================
-        function shareGame() {
-            const shareText = "🧠 Es-tu plus fort qu'une Intelligence Artificielle ? ⚡\nJoue à QuizBlitz AI, défie l'IA et tente de gagner des cartes cadeaux (Amazon, PayPal) !\n👉 https://quizblitz-game.vercel.app";
+        function shareGame(isEndScreen = false) {
+            let shareText = "🧠 Es-tu plus fort qu'une Intelligence Artificielle ? ⚡\nJoue à QuizBlitz AI, défie l'IA et tente de gagner des cartes cadeaux (Amazon, PayPal) !\n👉 https://quizblitz-game.vercel.app";
+            
+            // Si on est sur l'écran de fin, on personnalise le message avec le score !
+            if (isEndScreen) {
+                if (currentScore === 30) {
+                    shareText = "🏆 J'ai battu l'IA de QuizBlitz avec un SCORE PARFAIT de 30/30 ! Es-tu assez fort pour faire pareil ? 🧠⚡\n👉 https://quizblitz-game.vercel.app";
+                } else {
+                    shareText = `🧠 Je viens de défier l'IA de QuizBlitz et j'ai eu ${currentScore} / 30 ! Tu penses pouvoir me battre ? 💪⚡\n👉 https://quizblitz-game.vercel.app`;
+                }
+            }
             
             if (navigator.share) {
                 navigator.share({
@@ -339,11 +348,11 @@
                 }).catch(err => console.log('Partage annulé'));
             } else {
                 navigator.clipboard.writeText(shareText);
-                alert("Lien copié ! Partage-le avec tes amis.");
+                alert("Texte copié ! Partage-le avec tes amis sur WhatsApp ou Instagram.");
             }
         }
-        document.getElementById('share-home-btn').addEventListener('click', shareGame);
-        document.getElementById('share-end-btn').addEventListener('click', shareGame);
+        document.getElementById('share-home-btn').addEventListener('click', () => shareGame(false));
+        document.getElementById('share-end-btn').addEventListener('click', () => shareGame(true));
         // ==========================================
 
         // ==========================================
