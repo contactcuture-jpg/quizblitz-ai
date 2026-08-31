@@ -254,10 +254,17 @@
     </div>
 
     <script>
-        // SUPABASE CONFIG
+        // ==========================================
+        // SUPABASE CONFIG (PROTEGEE)
+        // ==========================================
         const SUPABASE_URL = 'https://wjcowlnouzrurybgyfir.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqY293bmxvdXpydXJ5Ymd5ZmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMTUzODQsImV4cCI6MjEwMzY5MTM4NH0.2SouvsfrQbBNRUd4gZC1Ji-iL8p02XzUy-Pl3aiT0_c';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let supabase = null;
+        try {
+            if (window.supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (e) { console.log('Supabase indisponible'); }
+        // ==========================================
 
         const API_URL = '/api/gemini'; 
         let currentScore = 0, virtualMoney = 0, currentQuestionNum = 1, quizQuestions = [], timerInterval, timeLeft = 15, revivesUsed = 0;
@@ -370,8 +377,12 @@
             closeBtn.onclick = () => { overlay.classList.remove('active'); if (typeof callback === 'function') callback(); };
         }
 
-        // CLASSEMENT SUPABASE
+        // CLASSEMENT SUPABASE (PROTEGE)
         async function fetchLeaderboard() {
+            if (!supabase) {
+                document.getElementById('leaderboard-list').innerHTML = '<p style="text-align:center; opacity:0.7; font-size:14px;">🏆 Classement indisponible</p>';
+                return;
+            }
             const { data, error } = await supabase.from('scores').select('player_name, score').order('score', { ascending: false }).limit(10);
             const list = document.getElementById('leaderboard-list');
             if (error || !data || data.length === 0) { list.innerHTML = '<p style="text-align: center; opacity: 0.7; font-size: 14px;">Soyez le premier à marquer !</p>'; return; }
@@ -383,7 +394,7 @@
             list.innerHTML = html;
         }
         async function saveScore() {
-            if (currentScore === 0) return;
+            if (currentScore === 0 || !supabase) return;
             let playerName = localStorage.getItem('quizblitz_player_name');
             if (!playerName) {
                 playerName = prompt(`Félicitations ! Tu as eu ${currentScore}/30.\nEntre ton pseudo pour le classement mondial :`, 'Gamer');
