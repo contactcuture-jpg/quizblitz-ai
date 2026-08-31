@@ -255,14 +255,14 @@
 
     <script>
         // ==========================================
-        // SUPABASE CONFIG (PROTEGEE)
+        // SUPABASE CONFIG (PROTEGEE - variable renommée en supabaseClient)
         // ==========================================
         const SUPABASE_URL = 'https://wjcowlnouzrurybgyfir.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqY293bmxvdXpydXJ5Ymd5ZmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMTUzODQsImV4cCI6MjEwMzY5MTM4NH0.2SouvsfrQbBNRUd4gZC1Ji-iL8p02XzUy-Pl3aiT0_c';
         
-        let supabase = null;
+        let supabaseClient = null;
         try {
-            if (window.supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         } catch (e) { console.log('Supabase indisponible'); }
         // ==========================================
 
@@ -379,11 +379,11 @@
 
         // CLASSEMENT SUPABASE (PROTEGE)
         async function fetchLeaderboard() {
-            if (!supabase) {
+            if (!supabaseClient) {
                 document.getElementById('leaderboard-list').innerHTML = '<p style="text-align:center; opacity:0.7; font-size:14px;">🏆 Classement indisponible</p>';
                 return;
             }
-            const { data, error } = await supabase.from('scores').select('player_name, score').order('score', { ascending: false }).limit(10);
+            const { data, error } = await supabaseClient.from('scores').select('player_name, score').order('score', { ascending: false }).limit(10);
             const list = document.getElementById('leaderboard-list');
             if (error || !data || data.length === 0) { list.innerHTML = '<p style="text-align: center; opacity: 0.7; font-size: 14px;">Soyez le premier à marquer !</p>'; return; }
             let html = '';
@@ -394,13 +394,13 @@
             list.innerHTML = html;
         }
         async function saveScore() {
-            if (currentScore === 0 || !supabase) return;
+            if (currentScore === 0 || !supabaseClient) return;
             let playerName = localStorage.getItem('quizblitz_player_name');
             if (!playerName) {
                 playerName = prompt(`Félicitations ! Tu as eu ${currentScore}/30.\nEntre ton pseudo pour le classement mondial :`, 'Gamer');
                 if (playerName) { playerName = playerName.substring(0, 15); localStorage.setItem('quizblitz_player_name', playerName); } else { return; }
             }
-            const { error } = await supabase.from('scores').insert([{ player_name: playerName, score: currentScore }]);
+            const { error } = await supabaseClient.from('scores').insert([{ player_name: playerName, score: currentScore }]);
             if (!error) fetchLeaderboard();
         }
 
@@ -412,7 +412,7 @@
             "espagnol (Espagne et Amérique Latine)": { home_sub: "⚡ Enfrenta a la IA y pon a prueba tu cultura general ! ⚡", label_theme: "Elige tu Tema", label_lang: "Elige tu Región / Idioma", start_btn: "Iniciar el Reto", rules_title: "Reglas del Juego", how_title: "📝 ¿Cómo jugar?", r1: "30 preguntas difíciles generadas por IA.", r2: "15 segundos por pregunta.", r3: "1 respuesta correcta = 0,33$ virtual (10$ en total).", r4: "¡Alcanza 10$ (30/30) para el sorteo real!", prize_title: "🎁 Premios y Recompensas", prize_txt: "¡Alcanza una puntuación perfecta de <span class='prize-text'>10$ (30/30)</span> para desbloquear el botón dorado y participar en el sorteo mensual!<br>Gana tarjetas de regalo (Amazon, PayPal) y premios en efectivo real.<br><br><em>¡Juega, gana y domina la clasificación!</em>", start_quiz_btn: "¡Entendido, a jugar!", score_lbl: "Puntuación:", q_lbl: "Pregunta:", exit_btn: "Salir", end_title: "¡Terminado!", final_sub: "Aquí está tu puntuación final", tombola_btn: "🎁 Participar en el sorteo", restart_btn: "Jugar de nuevo", loading: "La IA está préparant tus 30 preguntas, por favor espera...", api_error_quota: "La IA está muy ocupada con otros jugadores en este momento. ¡Por favor, inténtalo de nuevo en 1 minuto!", modal_title: "🎁 Inscripción al Sorteo", modal_txt: "La inscripción al sorteo está condicionada a alcanzar una puntuación perfecta de 10$ (30 respuestas correctas de 30). ¡Deberás responder a todas las preguntas sin errores para acceder al formulario de inscripción!", close_modal: "¡Entendido!", end_tombola_locked: "¡Alcanza los 10$ (30/30) para desbloquear la inscripción!", revive_title: "🎥 ¡Segunda Oportunidad!", revive_txt: "¡Fallaste la pregunta! Mira un anuncio corto para volver a intentar esta misma pregunta. (Limitado a 6 veces por juego).", watch_ad: "▶️ Ver", skip_ad: "Saltar" },
             "portugais (Brésil et Portugal)": { home_sub: "⚡ Enfrente a IA e teste seu conhecimento geral ! ⚡", label_theme: "Escolha seu Tema", label_lang: "Escolha sua Região / Idioma", start_btn: "Iniciar o Desafio", rules_title: "Regras do Jogo", how_title: "📝 Como jogar?", r1: "30 perguntas difíceis geradas por IA.", r2: "15 segundos por pergunta.", r3: "1 resposta correta = 0,33$ virtual (10$ no total).", r4: "Atinja 10$ (30/30) para o sorteio real!", prize_title: "🎁 Prêmios e Recompensas", prize_txt: "Atinja uma pontuação perfeita de <span class='prize-text'>10$ (30/30)</span> para desbloquear o botão dourado e participar do sorteio mensal!<br>Ganhe cartões de presente (Amazon, PayPal) e prêmios em dinheiro real.<br><br><em>Jogue, ganhe e domine o ranking!</em>", start_quiz_btn: "Entendi, jogar!", score_lbl: "Pontuação:", q_lbl: "Pergunta:", exit_btn: "Sair", end_title: "Terminado!", final_sub: "Aqui está sua pontuação final", tombola_btn: "🎁 Participar do sorteio", restart_btn: "Jogar novamente", loading: "A IA está preparando suas 30 perguntas, aguarde...", api_error_quota: "A IA está muito ocupada com outros jogadores no momento. Tente novamente em 1 minuto!", modal_title: "🎁 Inscrição no Sorteio", modal_txt: "A inscrição no sorteio está condicionada a atingir uma pontuação perfeita de 10$ (30 respostas corretas de 30). Você precisará responder a todas as perguntas sem erros para acessar o formulário de inscrição!", close_modal: "Entendi!", end_tombola_locked: "Atinja 10$ (30/30) para desbloquear a inscrição!", revive_title: "🎥 Segunda Chance!", revive_txt: "Você errou a pergunta! Assista a um anúncio curto para tentar novamente a mesma pergunta. (Limitado a 6 vezes por jogo).", watch_ad: "▶️ Assistir", skip_ad: "Pular" },
             "russe (Russie et Europe de l'Est)": { home_sub: "⚡ Брось вызов ИИ и проверь свои знания ! ⚡", label_theme: "Выбери тему", label_lang: "Выбери регион / язык", start_btn: "Начать испытание", rules_title: "Правила игры", how_title: "📝 Как играть?", r1: "30 сложных вопросов от ИИ.", r2: "15 секунд на вопрос.", r3: "1 правильный ответ = 0,33$ виртуально (10$ всего).", r4: "Набери 10$ (30/30) для реального розыгрыша!", prize_title: "🎁 Призы и Награды", prize_txt: "Набери идеальный балл <span class='prize-text'>10$ (30/30)</span>, чтобы разблокировать золотую кнопку и участвовать в ежемесячном розыгрыше!<br>Выигрывай подарочные карты (Amazon, PayPal) и денежные призы.<br><br><em>Играй, побеждай и доминируй в рейтинге!</em>", start_quiz_btn: "Понятно, в игру!", score_lbl: "Счет:", q_lbl: "Вопрос:", exit_btn: "Выйти", end_title: "Закончено!", final_sub: "Ваш итоговый счет", tombola_btn: "🎁 Участвовать в розыгрыше", restart_btn: "Играть снова", loading: "ИИ готовит ваши 30 вопросов, пожалуйста, подождите...", api_error_quota: "ИИ сейчас очень занят другими игроками. Пожалуйста, попробуйте снова через 1 минуту!", modal_title: "🎁 Регистрация в розыгрыше", modal_txt: "Участие в розыгрыше обусловлено набором идеального балла 10$ (30 правильных ответов из 30). Вам нужно правильно ответить на все вопросы без ошибок, чтобы получить доступ к форме регистрации!", close_modal: "Понятно!", end_tombola_locked: "Наберите 10$ (30/30), чтобы разблокировать регистрацию!", revive_title: "🎥 Второй шанс!", revive_txt: "Вы ошиблись! Посмотрите короткую рекламу, чтобы попробовать ответить на этот же вопрос снова. (Ограничено 6 раз за игру).", watch_ad: "▶️ Смотреть", skip_ad: "Пропустить" },
-            "chinois (Chine et Asie de l'Est)": { home_sub: "⚡ 挑战AI，测试你的常识 ! ⚡", label_theme: "选择主题", label_lang: "选择地区 / 语言", start_btn: "开始挑战", rules_title: "游戏规则", how_title: "📝 怎么玩？", r1: "30个由AI生成的难题。", r2: "每题15秒。", r3: "1个正确答案 = 0.33$ 虚拟（总计10$）。", r4: "达到 10$ (30/30) 即可参加真实抽奖！", prize_title: "🎁 奖品与奖励", prize_txt: "达到完美的 <span class='prize-text'>10$ (30/30)</span> 即可解锁金色按钮并参加每月抽奖！<br>赢得礼品卡（亚马逊、PayPal）和现金奖品。<br><br><em>玩游戏，赢奖品，称霸排行榜！</em>", start_quiz_btn: "明白了，开始游戏！", score_lbl: "得分:", q_lbl: "问题:", exit_btn: "退出", end_title: "结束！", final_sub: "这是你的最终得分", tombola_btn: "🎁 参加抽奖", restart_btn: "再玩一次", loading: "AI正在准备您的30个问题，请稍候...", api_error_quota: "AI目前正在被其他玩家大量使用。请在1分钟后重试！", modal_title: "🎁 抽奖注册", modal_txt: "参加抽奖的条件是达到完美的 10$（30题全部答对）。您必须正确回答所有问题才能访问注册表！", close_modal: "明白了！", end_tombola_locked: "达到 10$ (30/30) 即可解锁注册！", revive_title: "🎥 第二次机会！", revive_txt: "你答错了！观看一段简短的广告即可重试同一问题。（每局限制6次）。", watch_ad: "▶️ 观看", skip_ad: "跳过" }
+            "chinois (Chine et Asie de l'Est)": { home_sub: "⚡ 挑战AI，测试你的常识 ! ⚡", label_theme: "选择主题", label_lang: "选择地区 / 语言", start_btn: "开始挑战", rules_title: "游戏规则", how_title: "📝 怎么玩？", r1: "30个由AI生成的难题。", r2: "每题15秒。", r3: "1个正确答案 = 0.33$ 虚拟（总计10$）。", r4: "达到 10$ (30/30) 即可参加真实抽奖！", prize_title: "🎁 奖品与奖励", prize_txt: "达到完美的 <span class='prize-text'>10$ (30/30)</span> 即可解锁金色按钮并参加每月抽奖！<br>赢得礼品卡（亚马逊、PayPal）和现金奖品。<br><br><em>玩游戏，赢奖品，称霸排行榜！</em>", start_quiz_btn: "明白了，开始游戏！", score_lbl: "得分:", q_lbl: "问题:", exit_btn: "退出", end_title: "结束！", final_sub: "这是你的最终得分", tombola_btn: "🎁 参加抽奖", restart_btn: "再玩一次", loading: "AI正在准备您的30个问题，请稍候...", api_error_quota: "AI目前正在被其他玩家大量使用。请在1分钟后重试！", modal_title: "🎁 抽奖注册", modal_txt: "参加抽奖的条件是达到完美的 10$（30题全部答对）。您必须正确回答所有问题才能访问注册表！", close_modal: "明白了！", end_tombola_locked: "达到 10$ (30/30) 即可解锁注册！", revive_title: "🎥 第二次机会！", revive_txt: "你答错了！观看一段简短的广告即可重试同一问题。（每局限制6次）。", watch_ad: "▶️ 观察", skip_ad: "跳过" }
         };
 
         function updateUILanguage() {
