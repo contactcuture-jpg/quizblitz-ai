@@ -1,44 +1,37 @@
-const CACHE_NAME = 'quizblitz-cache-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/app-logo.png'
-];
+const CACHE_NAME = 'quizblitz-v3';
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Cache ouvert');
-        return cache.addAll(urlsToCache);
-      })
-  );
+self.addEventListener('install', function(event) {
+  self.skipWaiting();
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(keys.map(function(key) {
+        if (key !== CACHE_NAME) return caches.delete(key);
+      }));
+    })
+  );
+  self.clients.claim();
+});
+
+// Stratégie "Réseau d'abord" : on prend toujours la version du serveur si dispo
+self.addEventListener('fetch', function(event) {
+  if (event.request.method !== 'GET') return;
+  
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
-});
-
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
+    fetch(event.request).then(function(response) {
+      // On met en cache la nouvelle version
+      if (response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(event.request, copy);
+        });
+      }
+      return response;
+    }).catch(function() {
+      // Si pas de réseau, on sert le cache
+      return caches.match(event.request);
     })
   );
 });
